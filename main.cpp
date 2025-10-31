@@ -6,18 +6,19 @@
 #include <limits>
 #include <iomanip>
 #include <random>
+#include <utility> // Pentru std::move
 
 // ====================================================================
 // GRUP 1: CONSTANTE GLOBALE SI FUNCTII NON-MEMBRU DE UTILITATE (HELPERS)
 // ====================================================================
 
 // Constante globale pentru joc
-constexpr int VAL_MIN_STAT = 0;
-constexpr int VAL_MAX_STAT = 100;
-constexpr int VITEZA_DEGRADARE_FERICIRE = 1;
-constexpr int PRAG_SANATATE_CRITICA = 5;
-constexpr int MAX_OPTIUNI_DECIZIE = 4;
-constexpr int VARSTA_MAXIMA_FORTATA = 100;
+const int VAL_MIN_STAT = 0;
+const int VAL_MAX_STAT = 100;
+const int VITEZA_DEGRADARE_FERICIRE = 1;
+const int PRAG_SANATATE_CRITICA = 5;
+const int MAX_OPTIUNI_DECIZIE = 4; // 1-3 decizii normale + 4. Surrender
+const int VARSTA_MAXIMA_FORTATA = 100;
 
 // Date pentru randomizare (40+ Nume, fara diacritice)
 const std::vector<std::string> NUME_FEMEI = {
@@ -39,7 +40,7 @@ const std::vector<std::string> NUME_BARBATI = {
 const std::vector<std::string> STATUS_RELATII = {"Prieten", "Coleg", "Inamic"};
 
 // Functie helper pentru generarea numerelor aleatoare
-int getRandomInt(const int min, const int max) {
+int getRandomInt(int min, const int max) {
     static std::random_device rd;      // seed hardware
     static std::mt19937 gen(rd());     // generator Mersenne Twister
     std::uniform_int_distribution<> distrib(min, max);
@@ -130,15 +131,22 @@ std::ostream& operator<<(std::ostream& os, const DataNastere& dn) {
 }
 
 
-// CLASA 1: STATISTICA
+// CLASA 1: STATISTICA (CORECTATA pentru Rule of Five)
 class Statistica {
 private:
     int valoare; std::string nume;
 public:
     Statistica() {this->nume = "Necunoscuta"; this->valoare = 0;}
     Statistica(const std::string& nume, int valoare) {this->nume = nume; this->valoare = valoare;}
-    Statistica& operator=(const Statistica& other) {
+
+    // NOU: Membrii adaugati pentru a rezolva eroarea Clang/G++ strict
+    Statistica(const Statistica& other) = default; // C. de Copiere
+    Statistica& operator=(const Statistica& other) { // Op= de Copiere (existenta)
         if (this != &other) {this->nume = other.nume; this->valoare = other.valoare;} return *this;}
+    Statistica(Statistica&& other) = default; // C. de Mutare
+    Statistica& operator=(Statistica&& other) = default; // Op= de Mutare
+    // (Destructorul este implicit si OK)
+
     [[nodiscard]] const std::string& getNume() const { return nume; }
     [[nodiscard]] int getValoare() const { return valoare; }
     void setValoare(int nouaValoare) {
@@ -150,7 +158,7 @@ public:
 std::ostream& operator<<(std::ostream& os, const Statistica& s) {os << "[" << s.nume << ": " << s.valoare << "]"; return os;}
 
 
-// CLASA 2: STATISTICI
+// CLASA 2: STATISTICI (CORECTATA pentru Rule of Five)
 class Statistici {
 private:
     Statistica sanatate;
@@ -177,6 +185,12 @@ public:
         aspect("Aspect", a)
     {}
 
+    // NOU: Membrii adaugati pentru a rezolva eroarea G++ strict
+    Statistici(const Statistici& other) = default;
+    Statistici& operator=(const Statistici& other) = default;
+    Statistici(Statistici&& other) = default;
+    Statistici& operator=(Statistici&& other) = default;
+
     [[nodiscard]] const Statistica& getInteligenta() const { return inteligenta; }
     [[nodiscard]] const Statistica& getFericire() const { return fericire; }
     [[nodiscard]] const Statistica& getAspect() const { return aspect; }
@@ -189,7 +203,7 @@ public:
         else if (tip == "Aspect") {aspect.setValoare(aspect.getValoare() + valoare);}}
 
     [[nodiscard]] bool areStatisticiSanatoase() const {
-        constexpr int PRAG_SANATATE_BINE = 50;
+        const int PRAG_SANATATE_BINE = 50;
         return sanatate.getValoare() > PRAG_SANATATE_BINE && fericire.getValoare() > PRAG_SANATATE_BINE;
     }
     friend std::ostream& operator<<(std::ostream& os, const Statistici& s);
@@ -268,7 +282,9 @@ public:
     }
 
     // Destructor (cu log)
-    ~Relatie()=default;
+    ~Relatie() {
+    std::cout << "[LOG: Relatie] Destructor apelat pentru relatie cu " << numePersoana << std::endl;
+    }
 
     [[nodiscard]] int getNivelAfectiune() const {
         return nivelAfectiune;
@@ -296,8 +312,6 @@ private: std::string descriere; std::string tipImpact; int valoareImpact;
 public:
     EvenimentViata(const std::string& desc, const std::string& tip, int val) {
         this->descriere = desc; this->tipImpact = tip; this->valoareImpact = val;}
-    [[nodiscard]] const std::string& getTipImpact() const { return tipImpact; }
-    [[nodiscard]] int getValoareImpact() const { return valoareImpact; }
     friend std::ostream& operator<<(std::ostream& os, const EvenimentViata& e);
 };
 std::ostream& operator<<(std::ostream& os, const EvenimentViata& e) {
@@ -328,7 +342,7 @@ private:
     Statistici stats; // Obiect de compunere
     Cariera cariera;
     std::vector<Relatie> relatii;
-    static constexpr int MAX_RELATII = 5;
+    static const int MAX_RELATII = 5;
 
     void adaugaRelatieIntern(const Relatie& r) {
         if (relatii.size() < MAX_RELATII) {relatii.push_back(r);} else {std::cout << "[LOG] Limita de relatii atinsa." << std::endl;} }
@@ -373,12 +387,14 @@ private:
         }
     }
 
+    // Corectie indentare: se adauga acolade
     void marcheazaDeces(const std::string& cauza) {
-        if (esteMort) return; esteMort = true;
+        if (esteMort) { return; } esteMort = true;
         std::cout << "\n=================================================" << std::endl;
         std::cout << "=== JOC TERMINAT! Jucatorul a murit la " << varsta << " ani. ===" << std::endl;
         std::cout << "=== Cauza: " << cauza << " ===" << std::endl;
-        std::cout << "=================================================" << std::endl;}
+        std::cout << "=================================================" << std::endl;
+    }
 
     bool verificaDeces() {
         if (esteMort) return true;
@@ -395,7 +411,6 @@ private:
 
         int sansa = getRandomInt(1, 100);
         if (sansa < 35) {
-            std::string tipImpact = "Fericire";
             int impact = getRandomInt(-15, 20);
             std::string descriere = "S-a intamplat un eveniment minor in viata ta.";
 
@@ -490,7 +505,7 @@ private:
         // Afișează tranzacția financiară anuală
         std::cout << "* FINANCIAR: Salariu primit (+"<< cariera.getSalariuAnual() <<"K), Costuri de trai (-" << costViata << "K)." << std::endl;
 
-        // Verificare datorii și IMPACT
+        // Verificare datorii si IMPACT
         if (bani < 0 && baniInitiali >= 0.0) { // Intra in datorii (sau adanceste datoria)
             std::cout << "--- IMPACT DATORII ---" << std::endl;
             std::cout << "[! WARNING] AI INTRAT IN DATORII! Fericirea scade cu -10." << std::endl;
@@ -511,6 +526,8 @@ private:
         int inteligentaInitiala = stats.getInteligenta().getValoare();
         int aspectInitial = stats.getAspect().getValoare();
 
+        bool pregatit = stats.areStatisticiSanatoase();
+
         struct Scenariu {
             std::string descriere;
             int impactSanatate;
@@ -520,32 +537,54 @@ private:
         };
 
         std::vector<Scenariu> scenarii = {
+            // Scenariu 0: Pierdut in Padure (Risc Moderat)
             {"Te-ai ratacit intr-o zona montana. Ai pierdut o zi, dar ai invatat sa te descurci.",
                 -5, 0, +15, 0},
+            // Scenariu 1: Ajutor la un accident (Succes)
             {"Ai asistat la un accident si ai ajutat la salvarea unei vieti. Esti epuizat, dar fericit.",
                 -10, +25, 0, 0},
+            // Scenariu 2: Intalnire cu o specie salbatica (Esec)
             {"Ai fost atacat de un animal salbatic. Ai scapat, dar ai suferit rani vizibile.",
                 -30, -10, 0, -20},
+            // Scenariu 3: Explorare stiintifica (Succes Intelectual)
             {"Ai descoperit o pestera veche cu picturi rupestre. Sanatatea nu este afectata, dar intelectul creste.",
                 0, +10, +20, 0},
+            // Scenariu 4: Vreme rea si izolare (Risc Minor)
             {"Vremea te-a prins nepregatit. Ai rezistat cu greu. Emotional, esti daramat.",
                 0, -15, 0, 0}
         };
 
         int indexScenariu = getRandomInt(0, static_cast<int>(scenarii.size()) - 1);
+        // CORECTIE OPTIMIZARE: Folosim referință constantă
         const Scenariu& s = scenarii[indexScenariu];
 
         std::cout << "PROMPT: " << s.descriere << std::endl;
 
+        // Aplicam impactul de baza al scenariului
         stats.modificaStatistica("Sanatate", s.impactSanatate);
         stats.modificaStatistica("Fericire", s.impactFericire);
         stats.modificaStatistica("Inteligenta", s.impactInteligenta);
         stats.modificaStatistica("Aspect", s.impactAspect);
 
+        // Modificator de Noroc si Pregatire
+        int sansaNoroc = getRandomInt(1, 100);
+
+        if (!pregatit && sansaNoroc < 50) {
+            std::cout << "REZULTAT FINAL: Esec critic din lipsa de pregatire! Penalizari suplimentare aplicate." << std::endl;
+            stats.modificaStatistica("Sanatate", -20);
+            stats.modificaStatistica("Fericire", -15);
+        } else if (pregatit && sansaNoroc > 80) {
+            std::cout << "REZULTAT FINAL: Echipament excelent si noroc! Ai primit un bonus de fericire." << std::endl;
+            stats.modificaStatistica("Fericire", +10);
+        } else {
+             std::cout << "REZULTAT FINAL: Experienta medie. Impactul de baza a fost aplicat." << std::endl;
+        }
+
+        // NOU: AFISAREA IMPACTULUI FINAL CONCIS
         std::cout << "\n--- REZUMAT IMPACT EXPEDITIE ---" << std::endl;
 
         // Calculeaza si afiseaza diferenta
-        auto afiseazaImpact = [&](const std::string& nume, const int initial, const int final) {
+        auto afiseazaImpact = [&](const std::string& nume, int initial, int final) {
             int diferenta = final - initial;
             if (diferenta != 0) {
                 std::cout << " * " << nume << " " << (diferenta > 0 ? "+" : "") << diferenta << std::endl;
@@ -564,16 +603,16 @@ public:
     // Metoda afiseazaMeniuDecizie()
     static void afiseazaMeniuDecizie() {
         std::cout << "\n--- OPTIUNI ANUALE ---" << std::endl;
-        std::cout << "0. Continua la Anul Urmator (Fara Decizie majora)" << std::endl;
         std::cout << "1. Incearca Promovarea/Studiu (Inteligenta)" << std::endl;
         std::cout << "2. Expeditie Periculoasa (Eveniment Major cu Scenarii)" << std::endl;
-        std::cout << "3. Creeaza o noua relatie (Prieten/Coleg/Inamic--Maxim 3 relatii)" << std::endl;
+        std::cout << "3. Creeaza o noua relatie (Prieten/Coleg/Inamic)" << std::endl;
         std::cout << "4. RENUNTA / SURRENDER (Termina jocul)" << std::endl;
+        std::cout << "0. Continua la Anul Urmator (Fara Decizie majora)" << std::endl;
     }
 
-    // Constructor Personaj ce primeste Statisticile initiale
-    Personaj(const std::string& nume, const std::string& nat, int varsta, const DataNastere& dn, Statistici  initialStats)
-        : dataNastere(dn), stats(std::move(initialStats))
+    // CONSTRUCTOR MODIFICAT: Primește prin valoare și folosește std::move
+    Personaj(const std::string& nume, const std::string& nat, int varsta, const DataNastere& dn, Statistici initialStats)
+        : dataNastere(dn), stats(std::move(initialStats)) // CORECTIE CLANG-TIDY APLICATA
     {
         this->numeComplet = nume; this->nationalitate = nat; this->varsta = varsta;
         this->bani = 0.0; // Banii incep de la 0K
@@ -614,7 +653,7 @@ public:
 
             if (verificaDeces()) return true;
 
-            // Logica financiară
+            // Logica financiara
             intretinereFinanciara();
             if (verificaDeces()) return true;
 
@@ -625,6 +664,7 @@ public:
             // Logica de Impact Anual al Relatiilor
             std::cout << "\n--- IMPACT ANUAL RELATII ---" << std::endl;
             for (Relatie& r : relatii) {
+                // 1. Degradarea anuala de baza (pentru a incuraja interactiunea)
                 r.imbunatatesteRelatia(-2);
 
                 int nivelAfectiune = r.getNivelAfectiune();
@@ -650,7 +690,9 @@ public:
     }
 
     void incepeRelatieNoua(const std::string& nume, const std::string& tip, int afectiune) {
-        if (esteMort) return; Relatie r(nume, tip, afectiune); adaugaRelatieIntern(r);
+        if (esteMort) { return; }
+        Relatie r(nume, tip, afectiune);
+        adaugaRelatieIntern(r);
     }
 
     // Metoda iaDecizieDestin()
@@ -716,7 +758,7 @@ std::ostream& operator<<(std::ostream& os, const Personaj& p) {
 // ====================================================================
 
 int main() {
-    std::cout << "--- BITLIFE: DESTINY SIMULATOR v3.7 (FINAL) ---" << std::endl;
+    std::cout << "--- BITLIFE: DESTINY SIMULATOR v4.0 (FINAL CI FIX) ---" << std::endl;
 
     // 1. Initializare
     std::string nume, prenume, nationalitate;
@@ -726,8 +768,8 @@ int main() {
     DataNastere dn = genereazaDataNastere();
 
     // Generarea statisticilor initiale garantat > 50
-    constexpr int MIN_HIGH_STAT = 50;
-    constexpr int MAX_HIGH_STAT = 95;
+    const int MIN_HIGH_STAT = 50;
+    const int MAX_HIGH_STAT = 95;
 
     int s = getRandomInt(MIN_HIGH_STAT, MAX_HIGH_STAT);
     int f = getRandomInt(MIN_HIGH_STAT, MAX_HIGH_STAT);
