@@ -7,31 +7,59 @@
 #include <iomanip>
 #include <random>
 
-// Nu mai avem nevoie de <stdlib.h> sau <ctime>
+// ====================================================================
+// GRUP 1: CONSTANTE GLOBALE SI FUNCTII NON-MEMBRU DE UTILITATE (HELPERS)
+// ====================================================================
 
-// Constante globale
-const int VAL_MIN_STAT = 0;
-const int VAL_MAX_STAT = 100;
-const int VITEZA_DEGRADARE_FERICIRE = 1;
-const int PRAG_SANATATE_CRITICA = 5;
-const int MAX_OPTIUNI_DECIZIE = 3;
-const int VARSTA_MAXIMA_FORTATA = 100;
+// Constante globale pentru joc
+constexpr int VAL_MIN_STAT = 0;
+constexpr int VAL_MAX_STAT = 100;
+constexpr int VITEZA_DEGRADARE_FERICIRE = 1;
+constexpr int PRAG_SANATATE_CRITICA = 5;
+constexpr int MAX_OPTIUNI_DECIZIE = 4;
+constexpr int VARSTA_MAXIMA_FORTATA = 100;
 
-// Vector de nume și statusuri pentru randomizare
-const std::vector<std::string> NUME_RELATII = {"Alexandru", "Diana", "Mihai", "Elena", "Andrei", "Ioana"};
-const std::vector<std::string> STATUS_RELATII = {"Partener", "Prieten", "Coleg", "Ruda"};
+// Date pentru randomizare (40+ Nume, fara diacritice)
+const std::vector<std::string> NUME_FEMEI = {
+    "Maria", "Elena", "Andreea", "Alexandra", "Ioana", "Diana", "Carmen", "Adina",
+    "Ana", "Cristina", "Laura", "Monica", "Alina", "Daniela", "Gabriela", "Roxana",
+    "Simona", "Teodora", "Victoria", "Sofia", "Amalia", "Bianca", "Catalina", "Dora",
+    "Eliza", "Florentina", "Iulia", "Luminita", "Miruna", "Nicoleta", "Oana", "Paula",
+    "Raluca", "Sabina", "Tania", "Valentina", "Yasmina", "Zenobia", "Crina", "Emilia"
+};
 
-int getRandomInt(int min, int max) {
+const std::vector<std::string> NUME_BARBATI = {
+    "Alexandru", "Mihai", "Andrei", "Ionut", "Gabriel", "Radu", "Adrian", "Bogdan",
+    "Costin", "Daniel", "Emil", "Florin", "George", "Horatiu", "Iulian", "Lucian",
+    "Marcel", "Nicolae", "Octavian", "Petru", "Razvan", "Sergiu", "Tudor", "Vlad",
+    "Alin", "Ciprian", "Dorin", "Eugen", "Felix", "Horia", "Marius", "Ovidiu",
+    "Paul", "Robert", "Sorin", "Valentin", "Victor", "Zian", "Cezar", "Dragos"
+};
+
+const std::vector<std::string> STATUS_RELATII = {"Prieten", "Coleg", "Inamic"};
+
+// Functie helper pentru generarea numerelor aleatoare
+int getRandomInt(const int min, const int max) {
     static std::random_device rd;      // seed hardware
     static std::mt19937 gen(rd());     // generator Mersenne Twister
     std::uniform_int_distribution<> distrib(min, max);
     return distrib(gen);
 }
 
+// Functie helper pentru a alege un nume aleatoriu dintr-o lista specifica
+std::string alegeNumeRandom(const bool eBarbat) {
+    if (eBarbat) {
+        return NUME_BARBATI[getRandomInt(0, static_cast<int>(NUME_BARBATI.size()) - 1)];
+    } else {
+        return NUME_FEMEI[getRandomInt(0, static_cast<int>(NUME_FEMEI.size()) - 1)];
+    }
+}
+
+
 // Functie helper pentru citirea si validarea deciziei
 int citesteAlegere() {
     int alegere = 0;
-    std::cout << "\n> ACTIUNE JUCATOR: Introduceti numarul deciziei (1-" << MAX_OPTIUNI_DECIZIE << ", sau 0 pentru a inainta timpul): ";
+    std::cout << "\n> ACTIUNE JUCATOR: Introduceti numarul deciziei (1-" << MAX_OPTIUNI_DECIZIE << ", 4. Surrender, sau 0 pentru a inainta timpul): ";
 
     while (!(std::cin >> alegere) || alegere < 0 || alegere > MAX_OPTIUNI_DECIZIE) {
         std::cout << "Optiune invalida. Va rugam introduceti un numar valid (0-" << MAX_OPTIUNI_DECIZIE << "): ";
@@ -41,10 +69,33 @@ int citesteAlegere() {
     return alegere;
 }
 
+// Functie pentru citirea datelor initiale
+void citesteDateIntrare(std::string& nume, std::string& prenume, std::string& nationalitate) {
+    std::ifstream fisierTastatura("tastatura.txt");
+    if (fisierTastatura.is_open()) {
+        if (fisierTastatura >> nume >> prenume >> nationalitate) {
+            // Success
+        } else {
+             std::cout << "Eroare citire date din tastatura.txt. Folosind date implicite." << std::endl;
+             nume = "Andrei";
+             prenume = "Popescu";
+             nationalitate = "Roman";
+        }
+        fisierTastatura.close();
+    } else {
+        std::cout << "Eroare la deschiderea fisierului tastatura.txt! Folosind date implicite." << std::endl;
+        nume = "Andrei";
+        prenume = "Popescu";
+        nationalitate = "Roman";
+    }
+}
+
+
 // ====================================================================
-// Structură și Funcții pentru Data de Naștere
+// GRUP 2: STRUCTURI SI CLASE (DATA SI STATISTICI)
 // ====================================================================
 
+// Structura si Functii pentru Data de Nastere
 struct DataNastere {
     int zi=0;
     int luna=0;
@@ -64,30 +115,22 @@ std::string getLunaString(int luna) {
 DataNastere genereazaDataNastere() {
     DataNastere dn;
     dn.luna = getRandomInt(1, 12);
-
     int zile_max;
-    if (dn.luna == 2) {
-        zile_max = 28;
-    } else if (dn.luna == 4 || dn.luna == 6 || dn.luna == 9 || dn.luna == 11) {
-        zile_max = 30;
-    } else {
-        zile_max = 31;
-    }
-
+    if (dn.luna == 2) {zile_max = 28;}
+    else if (dn.luna == 4 || dn.luna == 6 || dn.luna == 9 || dn.luna == 11) {zile_max = 30;}
+    else {zile_max = 31;}
     dn.zi = getRandomInt(1, zile_max);
     return dn;
 }
 
-// Operator<< pentru afisarea datei (ex: 28 Martie 2025)
+// Operator<< pentru afisarea datei
 std::ostream& operator<<(std::ostream& os, const DataNastere& dn) {
     os << dn.zi << " " << getLunaString(dn.luna) << " " << dn.an;
     return os;
 }
 
 
-// ====================================================================
 // CLASA 1: STATISTICA
-// ====================================================================
 class Statistica {
 private:
     int valoare; std::string nume;
@@ -107,36 +150,62 @@ public:
 std::ostream& operator<<(std::ostream& os, const Statistica& s) {os << "[" << s.nume << ": " << s.valoare << "]"; return os;}
 
 
-// ====================================================================
 // CLASA 2: STATISTICI
-// ====================================================================
 class Statistici {
-private: Statistica sanatate; Statistica fericire; Statistica inteligenta; Statistica aspect;
+private:
+    Statistica sanatate;
+    Statistica fericire;
+    Statistica inteligenta;
+    Statistica aspect;
+
     void randomizeStats() {
-        this->sanatate = Statistica("Sanatate", getRandomInt(30, 90)); this->fericire = Statistica("Fericire", getRandomInt(30, 90));
-        this->inteligenta = Statistica("Inteligenta", getRandomInt(30, 90)); this->aspect = Statistica("Aspect", getRandomInt(30, 90));}
+        this->sanatate = Statistica("Sanatate", getRandomInt(30, 90));
+        this->fericire = Statistica("Fericire", getRandomInt(30, 90));
+        this->inteligenta = Statistica("Inteligenta", getRandomInt(30, 90));
+        this->aspect = Statistica("Aspect", getRandomInt(30, 90));
+    }
+
 public:
+    // 1. Constructor Implicit
+    Statistici() {randomizeStats();}
+
+    // 2. Constructor de initializare cu parametri
+    Statistici(int s, int f, int i, int a) :
+        sanatate("Sanatate", s),
+        fericire("Fericire", f),
+        inteligenta("Inteligenta", i),
+        aspect("Aspect", a)
+    {}
+
     [[nodiscard]] const Statistica& getInteligenta() const { return inteligenta; }
     [[nodiscard]] const Statistica& getFericire() const { return fericire; }
     [[nodiscard]] const Statistica& getAspect() const { return aspect; }
     [[nodiscard]] const Statistica& getSanatate() const { return sanatate; }
-    Statistici() {randomizeStats();}
+
     void modificaStatistica(const std::string& tip, int valoare) {
-        if (tip == "Sanatate") {sanatate.setValoare(sanatate.getValoare() + valoare);} else if (tip == "Fericire") {fericire.setValoare(fericire.getValoare() + valoare);}
-        else if (tip == "Inteligenta") {inteligenta.setValoare(inteligenta.getValoare() + valoare);} else if (tip == "Aspect") {aspect.setValoare(aspect.getValoare() + valoare);}}
-    [[nodiscard]] bool areStatisticiSanatoase() const {const int PRAG_SANATATE_BINE = 50; return sanatate.getValoare() > PRAG_SANATATE_BINE && fericire.getValoare() > PRAG_SANATATE_BINE;}
+        if (tip == "Sanatate") {sanatate.setValoare(sanatate.getValoare() + valoare);}
+        else if (tip == "Fericire") {fericire.setValoare(fericire.getValoare() + valoare);}
+        else if (tip == "Inteligenta") {inteligenta.setValoare(inteligenta.getValoare() + valoare);}
+        else if (tip == "Aspect") {aspect.setValoare(aspect.getValoare() + valoare);}}
+
+    [[nodiscard]] bool areStatisticiSanatoase() const {
+        constexpr int PRAG_SANATATE_BINE = 50;
+        return sanatate.getValoare() > PRAG_SANATATE_BINE && fericire.getValoare() > PRAG_SANATATE_BINE;
+    }
     friend std::ostream& operator<<(std::ostream& os, const Statistici& s);
 };
 std::ostream& operator<<(std::ostream& os, const Statistici& s) {os << s.sanatate << " " << s.fericire << " " << s.inteligenta << " " << s.aspect; return os;}
 
 
 // ====================================================================
-// CLASA 3: CARIERA
+// GRUP 3: CLASELE SECUNDARE (CARIERA, RELATIE, EVENIMENT)
 // ====================================================================
+
+// CLASA 3: CARIERA
 class Cariera {
 private:
     std::string numeJob;
-    int salariuAnual;
+    int salariuAnual; // Salariu in K (Mii)
     int satisfactie;
     int cerintaInteligenta;
     void ajusteazaSatisfactia(int val) {
@@ -144,16 +213,10 @@ private:
     }
 public:
     Cariera() {
-        this->numeJob = "Somaj";
-        this->salariuAnual = 0;
-        this->satisfactie = 10;
-        this->cerintaInteligenta = 0;
+        this->numeJob = "Somaj"; this->salariuAnual = 0; this->satisfactie = 10; this->cerintaInteligenta = 0;
     }
     Cariera(const std::string& nume, int salariu, int satisf, int cerinta) {
-        this->numeJob = nume;
-        this->salariuAnual = salariu;
-        this->satisfactie = satisf;
-        this->cerintaInteligenta = cerinta;
+        this->numeJob = nume; this->salariuAnual = salariu; this->satisfactie = satisf; this->cerintaInteligenta = cerinta;
     }
     [[nodiscard]] const std::string& getNumeJob() const { return numeJob; }
     [[nodiscard]] int getSalariuAnual() const { return salariuAnual; }
@@ -170,30 +233,64 @@ public:
 std::ostream& operator<<(std::ostream& os, const Cariera& c) {os << "Job: " << c.numeJob << " | Salariu: " << c.salariuAnual << "K | Satisfactie: " << c.satisfactie << "%"; return os;}
 
 
-// ====================================================================
-// CLASA 4: RELATIE (Simplificată)
-// ====================================================================
+// CLASA 4: RELATIE (Simplificata)
 class Relatie {
-private: std::string numePersoana; std::string tipRelatie; int nivelAfectiune;
+private:
+    std::string numePersoana;
+    std::string tipRelatie;
+    int nivelAfectiune;
+
 public:
+    // Constructor obisnuit (cu parametri)
     Relatie(const std::string& nume, const std::string& tip, int afectiune) {
         this->numePersoana = nume;
         this->tipRelatie = tip;
-        this->nivelAfectiune = std::max(VAL_MIN_STAT, std::min(VAL_MAX_STAT, afectiune));}
-    Relatie(const Relatie& other) = default;
-    ~Relatie() = default;
+        this->nivelAfectiune = std::max(VAL_MIN_STAT, std::min(VAL_MAX_STAT, afectiune));
+    }
+
+    // Constructor de copiere (cu log)
+    Relatie(const Relatie& other) {
+        this->numePersoana = other.numePersoana;
+        this->tipRelatie = other.tipRelatie;
+        this->nivelAfectiune = other.nivelAfectiune;
+        std::cout << "[LOG: Relatie] Constructor de copiere apelat pentru relatie cu " << numePersoana << std::endl;
+    }
+
+    // Operator= de copiere (cu log)
+    Relatie& operator=(const Relatie& other) {
+        if (this != &other) {
+            this->numePersoana = other.numePersoana;
+            this->tipRelatie = other.tipRelatie;
+            this->nivelAfectiune = other.nivelAfectiune;
+            std::cout << "[LOG: Relatie] Operator= de copiere apelat pentru relatie cu " << numePersoana << std::endl;
+        }
+        return *this;
+    }
+
+    // Destructor (cu log)
+    ~Relatie()=default;
+
+    [[nodiscard]] int getNivelAfectiune() const {
+        return nivelAfectiune;
+    }
+
     [[nodiscard]] const std::string& getNumePersoana() const { return numePersoana; }
+    [[nodiscard]] const std::string& getTipRelatie() const { return tipRelatie; }
+
     void imbunatatesteRelatia(int puncte) {
-        nivelAfectiune = std::min(VAL_MAX_STAT, nivelAfectiune + puncte); }
+        nivelAfectiune = std::min(VAL_MAX_STAT, nivelAfectiune + puncte);
+    }
+
     friend std::ostream& operator<<(std::ostream& os, const Relatie& r);
 };
+
+// Operator << pentru Relatie
 std::ostream& operator<<(std::ostream& os, const Relatie& r) {
-    os << r.tipRelatie << " (" << r.numePersoana << ") - Afecțiune: " << r.nivelAfectiune; return os;}
+    os << r.tipRelatie << " (" << r.numePersoana << ") - Afectiune: " << r.nivelAfectiune;
+    return os;
+}
 
-
-// ====================================================================
 // CLASA 5: EVENIMENTVIATA
-// ====================================================================
 class EvenimentViata {
 private: std::string descriere; std::string tipImpact; int valoareImpact;
 public:
@@ -208,34 +305,71 @@ std::ostream& operator<<(std::ostream& os, const EvenimentViata& e) {
 
 
 // ====================================================================
-// CLASA 6: PERSONAJ
+// GRUP 4: CLASA PRINCIPALA (PERSONAJ)
 // ====================================================================
+
+// Structura interna pentru a defini joburile
+struct Job {
+    std::string nume;
+    int salariuAnual; // K (Mii)
+    int satisfactie;
+    int cerintaInteligenta;
+};
+
 class Personaj {
 private:
     std::string numeComplet;
     std::string nationalitate;
     DataNastere dataNastere;
     int varsta;
-    double bani;
+    double bani; // In K (Mii de lei/valuta)
     int varstaDecesAleatorie;
     bool esteMort;
-    Statistici stats;
+    Statistici stats; // Obiect de compunere
     Cariera cariera;
     std::vector<Relatie> relatii;
-    static const int MAX_RELATII = 5;
+    static constexpr int MAX_RELATII = 5;
 
     void adaugaRelatieIntern(const Relatie& r) {
         if (relatii.size() < MAX_RELATII) {relatii.push_back(r);} else {std::cout << "[LOG] Limita de relatii atinsa." << std::endl;} }
 
     void creeazaRelatieRandom() {
         if (relatii.size() < MAX_RELATII) {
-            // CORECTAT: Cast explicit la int pentru a evita Narrowing Conversion
-            const std::string& nume = NUME_RELATII[getRandomInt(0, static_cast<int>(NUME_RELATII.size()) - 1)];
+            // Alegerea unui nume aleatoriu (50% sansa de a fi barbat, 50% femeie)
+            bool eBarbat = (getRandomInt(0, 1) == 0);
+            const std::string& nume = alegeNumeRandom(eBarbat);
+
             const std::string& status = STATUS_RELATII[getRandomInt(0, static_cast<int>(STATUS_RELATII.size()) - 1)];
             int afectiune = getRandomInt(20, 95);
+
+            int impactFericire = 0;
+            int impactSanatate = 0;
+
+            // Logica de ajustare a afectiunii si a impactului statistic
+            if (status == "Prieten") {
+                impactFericire = 15;
+                impactSanatate = 10;
+            } else if (status == "Coleg") {
+                impactFericire = 5;
+                impactSanatate = 0;
+                afectiune = getRandomInt(40, 75);
+            } else if (status == "Inamic") {
+                impactFericire = -15;
+                impactSanatate = -5;
+                afectiune = getRandomInt(0, 30);
+            }
+
             Relatie r(nume, status, afectiune);
             adaugaRelatieIntern(r);
-            std::cout << "Noua relatie: " << status << " cu " << nume << " (Afecțiune: " << afectiune << ")." << std::endl;
+
+            // Aplicarea impactului statisticilor
+            stats.modificaStatistica("Fericire", impactFericire);
+            stats.modificaStatistica("Sanatate", impactSanatate);
+
+            std::cout << "Noua relatie: " << status << " cu " << nume
+                      << " (Afectiune: " << afectiune << ")."
+                      << " Impact Stat: Fericire " << (impactFericire > 0 ? "+" : "") << impactFericire
+                      << ", Sanatate " << (impactSanatate > 0 ? "+" : "") << impactSanatate << "." << std::endl;
         }
     }
 
@@ -253,146 +387,302 @@ private:
         return false;
     }
 
+    // FUNCTIE EVENIMENT ALEATORIU MODIFICATA
     void evenimentAleatoriu() {
+        // Salvarea starii initiale
+        int fericireInitiala = stats.getFericire().getValoare();
+        double baniInitiali = bani; // Salvam banii pentru log
+
         int sansa = getRandomInt(1, 100);
         if (sansa < 35) {
-            std::string tipImpact = "Fericire"; int impact = getRandomInt(-15, 20);
+            std::string tipImpact = "Fericire";
+            int impact = getRandomInt(-15, 20);
             std::string descriere = "S-a intamplat un eveniment minor in viata ta.";
 
-            if (impact < 0) {descriere = "Ai pierdut un obiect valoros."; stats.modificaStatistica("Fericire", impact);}
-            else if (impact > 10) {descriere = "Ai gasit 50 de lei pe strada!"; bani += 0.05; stats.modificaStatistica("Fericire", impact);}
-            else {stats.modificaStatistica("Fericire", impact);}
+            // Logica de baza
+            if (impact < 0) {
+                descriere = "Ai pierdut un obiect valoros.";
+                stats.modificaStatistica("Fericire", impact);
+            } else if (impact > 10) {
+                descriere = "Ai gasit 50 de lei pe strada!";
+                bani += 0.05;
+                stats.modificaStatistica("Fericire", impact);
+            } else {
+                stats.modificaStatistica("Fericire", impact);
+            }
 
-            std::cout << "* Eveniment Aleatoriu: " << descriere << " (" << tipImpact << " " << (impact > 0 ? "+" : "") << impact << ")" << std::endl;
+            std::cout << "* Eveniment Aleatoriu: " << descriere << std::endl;
 
             if (getRandomInt(1, 10) > 8) {
                 creeazaRelatieRandom();
             }
+
+            // NOU: Afisarea Impactului Final al Evenimentului Aleatoriu
+            int fericireFinala = stats.getFericire().getValoare();
+            double baniFinali = bani;
+
+            int diferentaFericire = fericireFinala - fericireInitiala;
+            double diferentaBani = baniFinali - baniInitiali;
+
+            std::cout << "  - Status Fericire: " << (diferentaFericire > 0 ? "+" : "")
+                      << diferentaFericire << std::endl;
+
+            if (diferentaBani != 0.0) {
+                 std::cout << "  - BANI: " << (diferentaBani > 0.0 ? "+" : "")
+                           << std::fixed << std::setprecision(2) << diferentaBani << "K" << std::endl;
+            }
         }
     }
 
-    void intretinereFinanciara() {
-        const double COST_VIATA = 10.0;
-        bani += cariera.getSalariuAnual(); bani -= COST_VIATA;
-        if (bani < 0) {std::cout << "[LOG] Ai intrat in datorii! Fericirea scade. "; stats.modificaStatistica("Fericire", -10);}
+    // Logica de angajare bazata pe inteligenta
+    void obtinePrimulJob() {
+        const int inteligenta = stats.getInteligenta().getValoare();
+
+        // Lista de job-uri cu cerinte de inteligenta (sortate de la cel mai slab la cel mai bun)
+        const std::vector<Job> joburiDisponibile = {
+            // Nume Job (Salariu K, Satisfactie, Cerinta Inteligenta)
+            {"Lucrator in Depozit", 20, 30, 0},     // 0-34
+            {"Vanzator in Magazin", 35, 40, 35},    // 35-59
+            {"Asistent Administrativ", 50, 55, 60}, // 60-79
+            {"Programator Junior", 80, 70, 80},     // 80-94
+            {"Cercetator Stiintific", 120, 85, 95}  // 95+ (Best Job)
+        };
+
+        Job jobAles = joburiDisponibile[0]; // Job de baza (Lucrator in Depozit)
+
+        // Cautare inversa pentru a gasi cel mai bun job pe care personajul il poate obtine
+        for (const auto& job : joburiDisponibile) {
+            if (inteligenta >= job.cerintaInteligenta) {
+                jobAles = job; // Retine cel mai bun job care indeplineste cerinta
+            }
+        }
+
+        // Aplica noul job personajului
+        cariera = Cariera(jobAles.nume, jobAles.salariuAnual, jobAles.satisfactie, jobAles.cerintaInteligenta);
+
+        // Mesaj de notificare (Pop-up)
+        std::cout << "\n=================================================" << std::endl;
+        std::cout << ">>> FELICITARI! AI IMPLINIT 18 ANI! <<<" << std::endl;
+        std::cout << numeComplet << ", datorita inteligentei tale de " << inteligenta
+                  << ", ai obtinut primul tau loc de munca:" << std::endl;
+        std::cout << ">>> " << cariera.getNumeJob() << " (Salariu Anual: " << cariera.getSalariuAnual() << "K) <<<" << std::endl;
+        std::cout << "=================================================" << std::endl;
     }
+
+    // NOU: Intretinere financiara ajustata (Costuri ZERO pana la 18 ani)
+    void intretinereFinanciara() {
+        double costViata = 0.0; // Implicit: 0 costuri
+
+        // Costuri de viata in K (Mii) - Se aplica doar dupa ce implineste 18 ani
+        if (varsta >= 18) {
+            costViata = 10.0; // Costuri normale de adult (10K/an)
+        }
+
+        // Salvarea banilor DUPA ce am primit salariul in acest an (pentru logica de datorie)
+        double baniInitiali = bani;
+
+        // Venitul anual (cariera.getSalariuAnual() este in K)
+        bani += cariera.getSalariuAnual();
+
+        // Cheltuieli anuale
+        bani -= costViata;
+
+        // Afișează tranzacția financiară anuală
+        std::cout << "* FINANCIAR: Salariu primit (+"<< cariera.getSalariuAnual() <<"K), Costuri de trai (-" << costViata << "K)." << std::endl;
+
+        // Verificare datorii și IMPACT
+        if (bani < 0 && baniInitiali >= 0.0) { // Intra in datorii (sau adanceste datoria)
+            std::cout << "--- IMPACT DATORII ---" << std::endl;
+            std::cout << "[! WARNING] AI INTRAT IN DATORII! Fericirea scade cu -10." << std::endl;
+            stats.modificaStatistica("Fericire", -10);
+            std::cout << "----------------------" << std::endl;
+        } else if (bani < 0) {
+            std::cout << "[! WARNING] Esti inca in datorii." << std::endl;
+        }
+    }
+
+    // Functie privata pentru a gestiona scenariile complexe ale expeditiei (Eveniment Major)
+    void gestioneazaExpeditiePericuloasa() {
+        std::cout << ">> Pregatirea pentru expeditie. Verificam riscurile..." << std::endl;
+
+        // SALVAREA STARII INITIALE
+        int sanatateInitiala = stats.getSanatate().getValoare();
+        int fericireInitiala = stats.getFericire().getValoare();
+        int inteligentaInitiala = stats.getInteligenta().getValoare();
+        int aspectInitial = stats.getAspect().getValoare();
+
+        struct Scenariu {
+            std::string descriere;
+            int impactSanatate;
+            int impactFericire;
+            int impactInteligenta;
+            int impactAspect;
+        };
+
+        std::vector<Scenariu> scenarii = {
+            {"Te-ai ratacit intr-o zona montana. Ai pierdut o zi, dar ai invatat sa te descurci.",
+                -5, 0, +15, 0},
+            {"Ai asistat la un accident si ai ajutat la salvarea unei vieti. Esti epuizat, dar fericit.",
+                -10, +25, 0, 0},
+            {"Ai fost atacat de un animal salbatic. Ai scapat, dar ai suferit rani vizibile.",
+                -30, -10, 0, -20},
+            {"Ai descoperit o pestera veche cu picturi rupestre. Sanatatea nu este afectata, dar intelectul creste.",
+                0, +10, +20, 0},
+            {"Vremea te-a prins nepregatit. Ai rezistat cu greu. Emotional, esti daramat.",
+                0, -15, 0, 0}
+        };
+
+        int indexScenariu = getRandomInt(0, static_cast<int>(scenarii.size()) - 1);
+        const Scenariu& s = scenarii[indexScenariu];
+
+        std::cout << "PROMPT: " << s.descriere << std::endl;
+
+        stats.modificaStatistica("Sanatate", s.impactSanatate);
+        stats.modificaStatistica("Fericire", s.impactFericire);
+        stats.modificaStatistica("Inteligenta", s.impactInteligenta);
+        stats.modificaStatistica("Aspect", s.impactAspect);
+
+        std::cout << "\n--- REZUMAT IMPACT EXPEDITIE ---" << std::endl;
+
+        // Calculeaza si afiseaza diferenta
+        auto afiseazaImpact = [&](const std::string& nume, const int initial, const int final) {
+            int diferenta = final - initial;
+            if (diferenta != 0) {
+                std::cout << " * " << nume << " " << (diferenta > 0 ? "+" : "") << diferenta << std::endl;
+            }
+        };
+
+        afiseazaImpact("Sanatate", sanatateInitiala, stats.getSanatate().getValoare());
+        afiseazaImpact("Fericire", fericireInitiala, stats.getFericire().getValoare());
+        afiseazaImpact("Inteligenta", inteligentaInitiala, stats.getInteligenta().getValoare());
+        afiseazaImpact("Aspect", aspectInitial, stats.getAspect().getValoare());
+        std::cout << "--------------------------------\n" << std::endl;
+    }
+
 
 public:
-    void afiseazaMeniuDecizie() {
+    // Metoda afiseazaMeniuDecizie()
+    static void afiseazaMeniuDecizie() {
         std::cout << "\n--- OPTIUNI ANUALE ---" << std::endl;
-        std::cout << "1. Incearca Promovarea/Studiu (Inteligenta)" << std::endl;
-        std::cout << "2. Expediție Periculoasă (Sanatate/Risc)" << std::endl;
-        std::cout << "3. Creeaza o noua relatie (Afectiune si Status Random)" << std::endl;
         std::cout << "0. Continua la Anul Urmator (Fara Decizie majora)" << std::endl;
+        std::cout << "1. Incearca Promovarea/Studiu (Inteligenta)" << std::endl;
+        std::cout << "2. Expeditie Periculoasa (Eveniment Major cu Scenarii)" << std::endl;
+        std::cout << "3. Creeaza o noua relatie (Prieten/Coleg/Inamic--Maxim 3 relatii)" << std::endl;
+        std::cout << "4. RENUNTA / SURRENDER (Termina jocul)" << std::endl;
     }
 
-    Personaj(const std::string& nume, const std::string& nat, int varsta, const DataNastere& dn)
-        : dataNastere(dn)
+    // Constructor Personaj ce primeste Statisticile initiale
+    Personaj(const std::string& nume, const std::string& nat, int varsta, const DataNastere& dn, Statistici  initialStats)
+        : dataNastere(dn), stats(std::move(initialStats))
     {
-        this->numeComplet = nume;
-        this->nationalitate = nat;
-        this->varsta = varsta;
-        this->bani = 50.0;
+        this->numeComplet = nume; this->nationalitate = nat; this->varsta = varsta;
+        this->bani = 0.0; // Banii incep de la 0K
         this->varstaDecesAleatorie = getRandomInt(70, 99);
         this->esteMort = false;
-        std::cout << "[LOG] Vârsta de deces natural setată la " << this->varstaDecesAleatorie << " ani." << std::endl;
+        std::cout << "[LOG] Varsta de deces natural setata la " << this->varstaDecesAleatorie << " ani." << std::endl;
     }
+
+    // Constructor Personaj ce foloseste Statistici random (pentru compatibilitate)
+    Personaj(const std::string& nume, const std::string& nat, int varsta, const DataNastere& dn)
+        : Personaj(nume, nat, varsta, dn, Statistici())
+    {}
+
     [[nodiscard]] const std::string& getNume() const { return numeComplet; }
     [[nodiscard]] int getVarsta() const { return varsta; }
-    // Funcție complexă 1: Funcția Anuală (Verifică Decesul)
+
     [[nodiscard]] bool aplicaAnual(int ani = 1) {
         if (esteMort) return true;
 
         for (int i = 0; i < ani; ++i) {
-            // Condiție de deces forțată la 100 de ani
             if (varsta >= varstaDecesAleatorie || varsta >= VARSTA_MAXIMA_FORTATA) {
-                marcheazaDeces("Batranete");
-                return true;
-            }
+                marcheazaDeces("Batranete"); return true;}
 
             varsta += 1;
-            std::cout << "\n=================================================" << std::endl;
-            std::cout << "--- ANUL " << varsta << " | " << numeComplet << " ---" << std::endl;
-            std::cout << "=================================================" << std::endl;
-            std::cout << *this << std::endl; // Afișează starea la începutul anului
 
-            // 1. Decizie Jucător
-            afiseazaMeniuDecizie();
-            int alegere = citesteAlegere();
-
-            if (alegere != 0) {
-                iaDecizieDestin(alegere);
+            // Obtinerea primului job la 18 ani
+            if (varsta == 18) {
+                obtinePrimulJob();
             }
-            if (verificaDeces()) return true;
 
-            // 2. Progres Anual Automat
+            std::cout << "\n=================================================" << std::endl;
+            std::cout << "--- START ANUL " << varsta << " | " << numeComplet << " ---" << std::endl;
+            std::cout << "=================================================" << std::endl;
+
+            // Progres Anual Automat
             stats.modificaStatistica("Fericire", -VITEZA_DEGRADARE_FERICIRE);
+            std::cout << "* Degradare Fericire: -" << VITEZA_DEGRADARE_FERICIRE << std::endl;
 
             if (verificaDeces()) return true;
+
+            // Logica financiară
             intretinereFinanciara();
+            if (verificaDeces()) return true;
+
+            // Logica evenimentelor aleatorii
             evenimentAleatoriu();
             if (verificaDeces()) return true;
 
-            for (Relatie& r : relatii) {r.imbunatatesteRelatia(-2);}
+            // Logica de Impact Anual al Relatiilor
+            std::cout << "\n--- IMPACT ANUAL RELATII ---" << std::endl;
+            for (Relatie& r : relatii) {
+                r.imbunatatesteRelatia(-2);
+
+                int nivelAfectiune = r.getNivelAfectiune();
+
+                // 2. Aplicarea impactului continuu
+                if (r.getTipRelatie() == "Prieten" && nivelAfectiune > 70) {
+                    stats.modificaStatistica("Fericire", 3);
+                    stats.modificaStatistica("Sanatate", 1);
+                    std::cout << "* " << r.getNumePersoana() << " (Prieten Afec: " << nivelAfectiune << ") iti aduce bucurie: Fericire +3, Sanatate +1." << std::endl;
+                } else if (r.getTipRelatie() == "Inamic" && nivelAfectiune < 30) {
+                    stats.modificaStatistica("Fericire", -5);
+                    stats.modificaStatistica("Sanatate", -2);
+                    std::cout << "* " << r.getNumePersoana() << " (Inamic Afec: " << nivelAfectiune << ") te streseaza: Fericire -5, Sanatate -2." << std::endl;
+                } else if (r.getTipRelatie() == "Mama" || r.getTipRelatie() == "Tata") {
+                    // Parintii au un efect pozitiv constant, indiferent de afectiune (in limite rezonabile)
+                     stats.modificaStatistica("Fericire", 1);
+                     std::cout << "* " << r.getNumePersoana() << " (" << r.getTipRelatie() << ") iti ofera un confort constant: Fericire +1." << std::endl;
+                }
+            }
+            std::cout << "----------------------------" << std::endl;
         }
         return esteMort;
-    }
-
-    void schimbaCariera(const Cariera& c) {
-        if (esteMort) return;
-        if (stats.getInteligenta().getValoare() >= c.getCerintaInteligenta()) {
-            this->cariera = c; std::cout << "[LOG] Te-ai angajat ca " << c.getNumeJob() << "!" << std::endl;
-        } else {std::cout << "[LOG] Esec! Nu esti suficient de inteligent (necesar: " << c.getCerintaInteligenta() << ")." << std::endl;}
-    }
-
-    void aplicaEveniment(const EvenimentViata& ev) {
-        if (esteMort) return;
-        std::cout << "\n* EVENIMENT MAJOR: " << ev << std::endl;
-        stats.modificaStatistica(ev.getTipImpact(), ev.getValoareImpact());
-        verificaDeces();
     }
 
     void incepeRelatieNoua(const std::string& nume, const std::string& tip, int afectiune) {
         if (esteMort) return; Relatie r(nume, tip, afectiune); adaugaRelatieIntern(r);
     }
 
+    // Metoda iaDecizieDestin()
     void iaDecizieDestin(int alegere) {
         if (esteMort) return;
         std::cout << "--- EXECUT DECZIA " << alegere << " ---" << std::endl;
-        int noroc = getRandomInt(1, 10);
-        int impactFericire = 0; int impactAspect = 0; int impactSanatate = 0; int impactInteligenta = 0;
+        int impactFericire = 0;
 
         switch (alegere) {
             case 1: { // Promovare/Studiu
                 std::cout << "Actiune: Incearca Promovarea. ";
                 if (cariera.getNumeJob() != "Somaj") {cariera.incearcaPromovare(stats.getInteligenta().getValoare()); impactFericire += 10;}
-                else {std::cout << "Nu ai job. Ai studiat degeaba. "; impactInteligenta += 5;} break; }
-            case 2: { // Expediție Periculoasă
-                std::cout << "Actiune: Expediție periculoasă. ";
-                if (stats.areStatisticiSanatoase() && noroc > 5) {
-                    impactInteligenta = 10;
-                    impactFericire = 15;
-                    impactAspect = 0;  // supraviețuire fără efect asupra aspectului
-                    std::cout << "Ai supraviețuit. Inteligenta +10, Fericire +15.";
-                } else {
-                    impactSanatate = -40;
-                    impactAspect = -20; // a pierdut aspect din cauza rănilor
-                    std::cout << "Te-ai îmbolnăvit/Rănit. Sanatate -40, Aspect -20.";
-                }
+                else {std::cout << "Nu ai job. Ai studiat degeaba. "; stats.modificaStatistica("Inteligenta", 5);} break; }
+            case 2: { // Expeditie Periculoasa (Eveniment Major)
+                std::cout << "Actiune: Initierea unei expeditii periculoase..." << std::endl;
+                gestioneazaExpeditiePericuloasa();
                 break;
             }
             case 3: { // Creeaza o noua relatie random
                 std::cout << "Actiune: Intalnesti pe cineva nou. ";
                 creeazaRelatieRandom();
-                impactFericire += 15;
+                impactFericire += 15; // Bonus de fericire pentru actiune sociala
                 break;}
-            default: {std::cout << "Alegere invalidă. Nicio acțiune." << std::endl;}
+            case 4: { // Surrender
+                std::cout << "Actiune: Jucatorul a renuntat la viata!" << std::endl;
+                marcheazaDeces("Renuntare (Surrender)");
+                break;
+            }
+            default: {std::cout << "Alegere invalida. Nicio actiune." << std::endl;}
         }
 
         if (impactFericire != 0) stats.modificaStatistica("Fericire", impactFericire);
-        if (impactAspect != 0) stats.modificaStatistica("Aspect", impactAspect);
-        if (impactSanatate != 0) stats.modificaStatistica("Sanatate", impactSanatate);
-        if (impactInteligenta != 0) stats.modificaStatistica("Inteligenta", impactInteligenta);
 
         verificaDeces();
     }
@@ -402,10 +692,11 @@ public:
     friend std::ostream& operator<<(std::ostream& os, const Personaj& p);
 };
 
+// Operatorul de afisare pentru Personaj
 std::ostream& operator<<(std::ostream& os, const Personaj& p) {
     os << "--- " << p.numeComplet << " (" << p.varsta << " ani, " << p.nationalitate << ") ---" << "\n";
-    os << " Data Nastere: " << p.dataNastere << "\n"; // Afisare data de nastere
-    os << " BANI: " << p.bani << "K | ";
+    os << " Data Nastere: " << p.dataNastere << "\n";
+    os << " BANI: " << std::fixed << std::setprecision(2) << p.bani << "K | ";
     os << p.cariera << "\n";
     os << " STATISTICI: " << p.stats << "\n";
     os << " RELATII: " << "\n";
@@ -419,91 +710,95 @@ std::ostream& operator<<(std::ostream& os, const Personaj& p) {
     return os;
 }
 
-// Functie pentru citirea datelor de la tastatura/fisier
-void citesteDateIntrare(std::string& nume, std::string& prenume, std::string& nationalitate) {
-    std::ifstream fisierTastatura("tastatura.txt");
-    if (fisierTastatura.is_open()) {
-
-        if (fisierTastatura >> nume >> prenume >> nationalitate) {
-            // Success
-        } else {
-             std::cout << "Eroare citire date din tastatura.txt. Verificati formatul (Nume Prenume Nationalitate)! Folosind date implicite." << std::endl;
-             nume = "Andrei";
-             prenume = "Popescu";
-             nationalitate = "Roman";
-        }
-        fisierTastatura.close();
-    } else {
-        std::cout << "Eroare la deschiderea fisierului tastatura.txt! Asigurati-va ca exista. Folosind date implicite." << std::endl;
-        nume = "Andrei";
-        prenume = "Popescu";
-        nationalitate = "Roman";
-    }
-}
 
 // ====================================================================
-// FUNCTIA MAIN
+// GRUP 5: FUNCTIA MAIN (CU TESTE DE LOG)
 // ====================================================================
 
 int main() {
-    std::cout << "--- BITLIFE: DESTINY SIMULATOR v3.1 (FINAL CLEAN) ---" << std::endl;
+    std::cout << "--- BITLIFE: DESTINY SIMULATOR v3.7 (FINAL) ---" << std::endl;
 
-    // 1. Citirea datelor inițiale din tastatura.txt
+    // 1. Initializare
     std::string nume, prenume, nationalitate;
     citesteDateIntrare(nume, prenume, nationalitate);
 
     std::string numeComplet = nume + " " + prenume;
     DataNastere dn = genereazaDataNastere();
 
+    // Generarea statisticilor initiale garantat > 50
+    constexpr int MIN_HIGH_STAT = 50;
+    constexpr int MAX_HIGH_STAT = 95;
+
+    int s = getRandomInt(MIN_HIGH_STAT, MAX_HIGH_STAT);
+    int f = getRandomInt(MIN_HIGH_STAT, MAX_HIGH_STAT);
+    int i = getRandomInt(MIN_HIGH_STAT, MAX_HIGH_STAT);
+    int a = getRandomInt(MIN_HIGH_STAT, MAX_HIGH_STAT);
+
+    // LOG: Utilizarea Constructorului cu Parametri al clasei Statistici
+    std::cout << "\n[TEST LOG] -----------------------------------------------" << std::endl;
+    std::cout << "[TEST LOG] 1. Testam Constructorul Statistici cu Parametri:" << std::endl;
+    Statistici stats_initiale(s, f, i, a); // Apel la constructorul cu parametri
+    std::cout << "[TEST LOG] Statistici initiale setate: " << stats_initiale << std::endl;
+    std::cout << "[TEST LOG] -----------------------------------------------\n" << std::endl;
+
+
     std::cout << "\n=================================================" << std::endl;
-    std::cout << "Numele personajului: " << nume << std::endl;
-    std::cout << "Prenumele personajului: " << prenume << std::endl;
-    std::cout << "Nationalitatea personajului: " << nationalitate << std::endl;
-    std::cout << "Data de nastere (Anul 2025): " << dn << std::endl;
+    std::cout << "Numele personajului: " << numeComplet << std::endl;
+    std::cout << "Nationalitatea: " << nationalitate << std::endl;
+    std::cout << "Data de nastere: " << dn << std::endl;
     std::cout << "=================================================" << std::endl;
 
-    // 2. Crearea de obiecte
-    Personaj jucator(numeComplet, nationalitate, 1, dn); // începe de la 1 an
+    // 2. Crearea personajului si a relatiilor initiale
+    Personaj jucator(numeComplet, nationalitate, 1, dn, stats_initiale); // Transmiterea statisticilor
 
-    Cariera jobSimplu("Casier", 30, 40, 30);
-    Cariera jobAvansat("Programator Senior", 120, 80, 85);
-    EvenimentViata imbolnavire("Gripa severa", "Sanatate", -30);
+    std::cout << "\n[TEST LOG] -----------------------------------------------" << std::endl;
+    std::cout << "[TEST LOG] 2. Testam Constructorul de Copiere al Relatie (Parinti cu nume specifice):" << std::endl;
 
-    // Relații de familie la naștere
-    jucator.incepeRelatieNoua("Maria", "Mama", 100);
-    jucator.incepeRelatieNoua("Ion", "Tata", 100);
+    // Mama (Nume din lista de Femei)
+    std::string nume_mama = alegeNumeRandom(false);
+    jucator.incepeRelatieNoua(nume_mama, "Mama", 100);
+
+    // Tata (Nume din lista de Barbati)
+    std::string nume_tata = alegeNumeRandom(true);
+    jucator.incepeRelatieNoua(nume_tata, "Tata", 100);
+    std::cout << "[TEST LOG] -----------------------------------------------" << std::endl;
+
+
+    // Test specific pentru Operator= de Copiere
+    std::cout << "\n[TEST LOG] 3. Testam Operator= de Copiere al Relatie:" << std::endl;
+    Relatie relatie_originala("TestOp", "Prieten", 70);
+    Relatie relatie_noua("Inlocuit", "Necunoscut", 10);
+
+    relatie_noua = relatie_originala; // APEL LA OPERATOR= DE COPIERE
+
+    std::cout << "[TEST LOG] Relatia 'relatie_noua' dupa Op=: " << relatie_noua << std::endl;
+    std::cout << "[TEST LOG] -----------------------------------------------\n" << std::endl;
+
 
     std::cout << "\n--- START VIATA ---" << std::endl;
 
-    // 3. Simulare anuală interactivă
-    std::cout << "\n--- INCEPE SIMULAREA ANUALA INTERACTIVA ---" << std::endl;
-
-    for (int i = 0; i < 100; ++i) {  // max 100 ani
+    // 3. Simulare anuala interactiva
+    for (int an_curent = 1; an_curent < VARSTA_MAXIMA_FORTATA; ++an_curent) {
         if (jucator.getEsteMort()) break;
 
-        std::cout << "\n================== ANUL " << jucator.getVarsta() << " ==================\n";
+        // Afiseaza starea si meniul de decizie
+        std::cout << "\n--- STARE CURENTA ---" << std::endl;
         std::cout << jucator << std::endl;
 
-        // 1. Decizie jucător
-        jucator.afiseazaMeniuDecizie();
+        // 1. Decizie jucator
+        Personaj::afiseazaMeniuDecizie();
         int alegere = citesteAlegere();
 
         if (alegere != 0) {
-            if (alegere == 1 && jucator.getVarsta() < 18) {
-                std::cout << "Nu poti sa te angajezi sau sa studiezi pentru job pana la 18 ani." << std::endl;
-            } else if (alegere == 3 && jucator.getVarsta() < 18) {
-                std::cout << "Nu poti sa creezi partener sau prieten pana la 18 ani." << std::endl;
-            } else {
-                jucator.iaDecizieDestin(alegere);
-                if (jucator.getEsteMort()) break;
-            }
+            jucator.iaDecizieDestin(alegere);
+            if (jucator.getEsteMort()) break;
         }
 
-        // 2. Progres anual automat
-        bool mort = jucator.aplicaAnual(1);  // aplică un singur an
-        if (mort) break;
+        // 2. Progres anual automat (aplica schimbarile si avanseaza varsta)
+        if (jucator.aplicaAnual(1)) break;
     }
 
+    // 4. Final
     std::cout << "\n=================================================" << std::endl;
     std::cout << "  JOC TERMINAT. REZULTAT FINAL." << std::endl;
     std::cout << "=================================================" << std::endl;
@@ -511,6 +806,11 @@ int main() {
     if (!jucator.getEsteMort()) {
         std::cout << jucator << std::endl;
     }
+
+    // LOG: Testam Destructorul
+    std::cout << "\n[TEST LOG] 4. Testam Destructorul Relatie:" << std::endl;
+    std::cout << "[TEST LOG] Urmeaza sa iasa din scope Relatiile 'relatie_originala' si 'relatie_noua'..." << std::endl;
+    std::cout << "[TEST LOG] Destructorii (inclusiv pentru obiectele Relatie din vectorul jucatorului) vor fi apelati acum (dupa afisarea acestui mesaj)." << std::endl;
 
     return 0;
 }
