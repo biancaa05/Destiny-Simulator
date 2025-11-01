@@ -154,15 +154,11 @@ public:
     Statistica(Statistica&& other) = default;
     Statistica& operator=(Statistica&& other) = default;
 
-    [[nodiscard]] const std::string& getNume() const { return nume; }
     [[nodiscard]] int getValoare() const { return valoare; }
 
-    void setValoare(int nouaValoare) {
+    void setValoare(const int nouaValoare) {
         this->valoare = std::max(VAL_MIN_STAT, std::min(VAL_MAX_STAT, nouaValoare));
     }
-
-    [[nodiscard]] bool esteCritica() const { return valoare < PRAG_SANATATE_CRITICA; }
-
     friend std::ostream& operator<<(std::ostream& os, const Statistica& s);
 };
 std::ostream& operator<<(std::ostream& os, const Statistica& s) {
@@ -256,7 +252,6 @@ public:
 
     [[nodiscard]] const std::string& getNumeJob() const { return numeJob; }
     [[nodiscard]] int getSalariuAnual() const { return salariuAnual; }
-    [[nodiscard]] int getCerintaInteligenta() const { return cerintaInteligenta; }
 
     int incearcaPromovare(const int inteligentaPersonaj) {
         const int sansaBaza = (inteligentaPersonaj - cerintaInteligenta) / 2;
