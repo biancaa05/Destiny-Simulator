@@ -620,9 +620,7 @@ public:
         : Personaj(nume, nat, varsta, dn, Statistici())
     {}
 
-    [[nodiscard]] const std::string& getNume() const { return numeComplet; }
     [[nodiscard]] int getVarsta() const { return varsta; }
-
     [[nodiscard]] bool aplicaAnual(const int ani = 1) {
         if (esteMort) return true;
 
