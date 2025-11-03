@@ -132,13 +132,14 @@ std::ostream& operator<<(std::ostream& os, const DataNastere& dn) {
 
 class Statistica {
 private:
-    int valoare; std::string nume;
+    int valoare;
+    std::string nume;
 public:
     Statistica() {
         this->nume = "Necunoscuta";
         this->valoare = 0;
     }
-    Statistica(const std::string& nume, int valoare) {
+    Statistica(const std::string& nume, const int valoare) {
         this->nume = nume;
         this->valoare = valoare;
     }
@@ -200,7 +201,7 @@ public:
     [[nodiscard]] const Statistica& getAspect() const { return aspect; }
     [[nodiscard]] const Statistica& getSanatate() const { return sanatate; }
 
-    void modificaStatistica(const std::string& tip, int valoare) {
+    void modificaStatistica(const std::string& tip, const int valoare) {
         if (tip == "Sanatate") {
             sanatate.setValoare(sanatate.getValoare() + valoare);
         }
@@ -221,7 +222,10 @@ public:
     }
     friend std::ostream& operator<<(std::ostream& os, const Statistici& s);
 };
-std::ostream& operator<<(std::ostream& os, const Statistici& s) {os << s.sanatate << " " << s.fericire << " " << s.inteligenta << " " << s.aspect; return os;}
+std::ostream& operator<<(std::ostream& os, const Statistici& s) {
+    os << s.sanatate << " " << s.fericire << " " << s.inteligenta << " " << s.aspect;
+    return os;
+}
 
 
 class Cariera {
@@ -231,7 +235,7 @@ private:
     int satisfactie;
     int cerintaInteligenta;
 
-    void ajusteazaSatisfactia(int val) {
+    void ajusteazaSatisfactia(const int val) {
         satisfactie = std::max(VAL_MIN_STAT, std::min(VAL_MAX_STAT, val));
     }
 
@@ -242,7 +246,7 @@ public:
         this->satisfactie = 10;
         this->cerintaInteligenta = 0;
     }
-    Cariera(const std::string& nume, int salariu, int satisf, int cerinta) {
+    Cariera(const std::string& nume, const int salariu, const int satisf, const int cerinta) {
         this->numeJob = nume;
         this->salariuAnual = salariu;
         this->satisfactie = satisf;
@@ -282,7 +286,7 @@ private:
     int nivelAfectiune;
 
 public:
-    Relatie(const std::string& nume, const std::string& tip, int afectiune) {
+    Relatie(const std::string& nume, const std::string& tip, const int afectiune) {
         this->numePersoana = nume;
         this->tipRelatie = tip;
         this->nivelAfectiune = std::max(VAL_MIN_STAT, std::min(VAL_MAX_STAT, afectiune));
@@ -291,26 +295,22 @@ public:
         this->numePersoana = other.numePersoana;
         this->tipRelatie = other.tipRelatie;
         this->nivelAfectiune = other.nivelAfectiune;
-        std::cout << "[LOG: Relatie] Constructor de copiere apelat pentru relatie cu " << numePersoana << std::endl;
     }
     Relatie& operator=(const Relatie& other) {
         if (this != &other) {
             this->numePersoana = other.numePersoana;
             this->tipRelatie = other.tipRelatie;
             this->nivelAfectiune = other.nivelAfectiune;
-            std::cout << "[LOG: Relatie] Operator= de copiere apelat pentru relatie cu " << numePersoana << std::endl;
         }
         return *this;
     }
-    ~Relatie() {
-    std::cout << "[LOG: Relatie] Destructor apelat pentru relatie cu " << numePersoana << std::endl;
-    }
+    ~Relatie()=default;
 
     [[nodiscard]] int getNivelAfectiune() const { return nivelAfectiune; }
     [[nodiscard]] const std::string& getNumePersoana() const { return numePersoana; }
     [[nodiscard]] const std::string& getTipRelatie() const { return tipRelatie; }
 
-    void imbunatatesteRelatia(int puncte) {
+    void imbunatatesteRelatia(const int puncte) {
         nivelAfectiune = std::min(VAL_MAX_STAT, nivelAfectiune + puncte);
     }
 
@@ -366,7 +366,7 @@ private:
             relatii.push_back(r);
         }
         else {
-            std::cout << "[LOG] Limita de relatii atinsa." << std::endl;
+            std::cout << "Limita de relatii atinsa." << std::endl;
         }
     }
 
@@ -432,7 +432,7 @@ private:
 
     void evenimentAleatoriu() {
         const int fericireInitiala = stats.getFericire().getValoare();
-        const double baniInitiali = bani; // Salvam banii pentru log
+        const double baniInitiali = bani;
 
         if (const int sansa = getRandomInt(1, 100); sansa < 35) {
             const int impact = getRandomInt(-15, 20);
@@ -792,20 +792,11 @@ int main() {
 
     Personaj jucator(numeComplet, nationalitate, 1, dn, stats_initiale);
 
-    std::cout << "\n[TEST LOG] 2. Testam Constructorul de Copiere al Relatie (Parinti cu nume specifice):" << std::endl;
-
     std::string nume_mama = alegeNumeRandom(false);
     jucator.incepeRelatieNoua(nume_mama, "Mama", 100);
     std::string nume_tata = alegeNumeRandom(true);
     jucator.incepeRelatieNoua(nume_tata, "Tata", 100);
 
-    std::cout << "\n[TEST LOG] 3. Testam Operator= de Copiere al Relatie:" << std::endl;
-    Relatie relatie_originala("TestOp", "Prieten", 70);
-    Relatie relatie_noua("Inlocuit", "Necunoscut", 10);
-
-    relatie_noua = relatie_originala;
-
-    std::cout << "\n[TEST LOG] Relatia 'relatie_noua' dupa Op=: " << relatie_noua << std::endl;
     std::cout << "\n--- START VIATA ---" << std::endl;
 
     for (int i1 = 0; i1 < ani_simulare; ++i1) {
