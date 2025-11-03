@@ -12,10 +12,9 @@ constexpr int VAL_MIN_STAT = 0;
 constexpr int VAL_MAX_STAT = 100;
 constexpr int VITEZA_DEGRADARE_FERICIRE = 1;
 constexpr int PRAG_SANATATE_CRITICA = 5;
-constexpr int MAX_OPTIUNI_DECIZIE = 4; // 1-3 decizii normale + 4. Surrender
+constexpr int MAX_OPTIUNI_DECIZIE = 4;
 constexpr int VARSTA_MAXIMA_FORTATA = 100;
 
-// Date pentru randomizare (40+ Nume, fara diacritice)
 const std::vector<std::string> NUME_FEMEI = {
     "Maria", "Elena", "Andreea", "Alexandra", "Ioana", "Diana", "Carmen", "Adina",
     "Ana", "Cristina", "Laura", "Monica", "Alina", "Daniela", "Gabriela", "Roxana",
@@ -778,7 +777,7 @@ int main() {
     int i = getRandomInt(MIN_HIGH_STAT, MAX_HIGH_STAT);
     int a = getRandomInt(MIN_HIGH_STAT, MAX_HIGH_STAT);
 
-    Statistici stats_initiale(s, f, i, a); // Apel la constructorul cu parametri
+    Statistici stats_initiale(s, f, i, a);
     std::cout << "\n[TEST LOG] Statistici initiale setate: " << stats_initiale << std::endl;
     std::cout << "\n=================================================" << std::endl;
     std::cout << "Numele personajului: " << numeComplet << std::endl;
