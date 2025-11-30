@@ -79,7 +79,11 @@ void Personaj::creeazaRelatieRandom() {
         const bool eBarbat = (getRandomInt(0, 1) == 0);
         const std::string& nume = alegeNumeRandom(eBarbat);
         const std::string& status = STATUS_RELATII[getRandomInt(0, static_cast<int>(STATUS_RELATII.size()) - 1)];
+
+        const int aspectScore = stats.getAspect().getValoare();
         int afectiune = getRandomInt(20, 95);
+
+        afectiune = std::max(20, std::min(95, afectiune + (aspectScore / 4)));
 
         int impactFericire = 0;
         int impactSanatate = 0;
@@ -93,12 +97,14 @@ void Personaj::creeazaRelatieRandom() {
                 impactFericire = 5;
                 impactSanatate = 0;
                 afectiune = getRandomInt(40, 75);
+                afectiune = std::min(75, afectiune + (aspectScore / 6));
             }
             else
                 if (status == "Inamic") {
                     impactFericire = -15;
                     impactSanatate = -5;
-                    afectiune = getRandomInt(0, 30);
+                    if (aspectScore > 80)
+                        afectiune = std::min(10, afectiune);
                 }
 
         const Relatie r(nume, status, afectiune);
