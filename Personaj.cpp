@@ -25,10 +25,10 @@ Personaj::Personaj(const std::string& nume, const std::string& nat, const int va
     : Personaj(nume, nat, varsta, dn, Statistici())
 {}
 
-Personaj::Personaj(const Personaj& other)
-    : numeComplet(other.numeComplet), nationalitate(other.nationalitate),
-      dataNastere(other.dataNastere), varsta(other.varsta), bani(other.bani),
-      varstaDecesAleatorie(other.varstaDecesAleatorie), esteMort(other.esteMort),
+Personaj::Personaj(const Personaj& other) 
+    : numeComplet(other.numeComplet), nationalitate(other.nationalitate), 
+      dataNastere(other.dataNastere), varsta(other.varsta), bani(other.bani), 
+      varstaDecesAleatorie(other.varstaDecesAleatorie), esteMort(other.esteMort), 
       stats(other.stats), cariera(other.cariera), relatii(other.relatii)
 {
     if (other.ultimaAventura) {
@@ -38,9 +38,9 @@ Personaj::Personaj(const Personaj& other)
 }
 
 Personaj& Personaj::operator=(const Personaj& other) {
-    Personaj temp(other);
-
-    using std::swap;
+    Personaj temp(other); 
+    
+    using std::swap; 
 
     swap(this->numeComplet, temp.numeComplet);
     swap(this->nationalitate, temp.nationalitate);
@@ -124,7 +124,7 @@ void Personaj::marcheazaDeces(const std::string& cauza) {
 
 bool Personaj::verificaDeces() {
     if (esteMort) return true;
-
+    
     if (stats.getSanatate().getValoare() < PRAG_SANATATE_CRITICA) {
         marcheazaDeces("Sanatate extrem de scazuta");
         return true;
@@ -228,32 +228,43 @@ void Personaj::intretinereFinanciara() {
 void Personaj::gestioneazaExpeditiePericuloasa() {
     std::cout << ">> Selectarea unei aventuri pentru anul curent..." << std::endl;
 
-    const int tip = getRandomInt(1, 3);
+    const int tip = getRandomInt(1, 3); 
+    const bool pregatit = stats.areStatisticiSanatoase(); 
 
     if (tip == 1) {
         ultimaAventura.reset(new DrumetieMontana());
     } else if (tip == 2) {
         ultimaAventura.reset(new Salvare());
-    } else {
+    } else { 
         ultimaAventura.reset(new Vanatoare());
     }
-
-    ultimaAventura->afiseazaDetalii(std::cout);
+    
+    std::cout << ">> Tip Aventura: ";
+    ultimaAventura->afiseazaDetalii(std::cout); 
     std::cout << std::endl;
 
     try {
-        ultimaAventura->aplicaImpact(stats);
-
+        ultimaAventura->aplicaImpact(stats); 
+        
         if (auto* salvarePtr = dynamic_cast<Salvare*>(ultimaAventura.get())) {
-            salvarePtr->oferaMotivatieExtra(stats);
+            salvarePtr->oferaMotivatieExtra(stats); 
             std::cout << "\n[LOG: Downcast] Primit motivatie extra (Fericire +5) de la Salvare.";
+        }
+
+        if (!pregatit && getRandomInt(1, 100) < 50) {
+             std::cout << "\n[ATENTIE] Nepregatirea a condus la o penalizare critica!";
+             stats.modificaStatistica("Sanatate", -15);
+             stats.modificaStatistica("Fericire", -15);
+        } else if (pregatit && getRandomInt(1, 100) > 80) {
+             std::cout << "\n[BONUS] Pregatirea a asigurat un mic bonus!";
+             stats.modificaStatistica("Fericire", 5);
         }
 
     }
     catch (const EroareStatisticaCritica& e) {
         std::cout << "\n[ACTIUNE FATALA] " << e.what() << std::endl;
         marcheazaDeces("Efect Fatal in timpul Expeditiei");
-        ultimaAventura.reset(nullptr);
+        ultimaAventura.reset(nullptr); 
         return;
     }
 
@@ -295,7 +306,7 @@ void Personaj::iaDecizieDestin(const int alegere) {
         }
         case 2: {
             std::cout << "Actiune: Initierea unei expeditii periculoase..." << std::endl;
-            gestioneazaExpeditiePericuloasa();
+            gestioneazaExpeditiePericuloasa(); 
             break;
         }
         case 3: {
