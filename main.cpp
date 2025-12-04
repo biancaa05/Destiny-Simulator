@@ -102,7 +102,7 @@ int main() {
         const std::string numeComplet = nume + " " + prenume;
         const DataNastere dn = genereazaDataNastere();
 
-        constexpr int MIN_HIGH_STAT = 50;
+        constexpr int MIN_HIGH_STAT = 80;
         constexpr int MAX_HIGH_STAT = 95;
 
         const Statistici stats_initiale(
