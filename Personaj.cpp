@@ -281,6 +281,8 @@ void Personaj::gestioneazaExpeditiePericuloasa() {
         ultimaAventura = std::make_unique<EvenimentSocial>();
     } else if (tip == 6) {
         ultimaAventura = std::make_unique<ScandalPublic>();
+    } else if (tip == 7 ) {
+        ultimaAventura = std::make_unique<MostenireNeasteptata>();
     }
     
     std::cout << ">> Tip Aventura: ";

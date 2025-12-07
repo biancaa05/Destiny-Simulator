@@ -102,3 +102,23 @@ void ScandalPublic::aplicaImpact(Statistici& stats) {
 void ScandalPublic::afiseaza(std::ostream& os) const {
     os << "Cost Bază: -20K. Risc Esec (pierderi grave): 60% (influentat de Inteligenta).";
 }
+
+void MostenireNeasteptata::aplicaImpact(Statistici& stats) {
+    const int sansaSucces = 100 - getSansaEsecBaza();
+
+    std::cout << "\n[MOȘTENIRE] Cost: 0K. Sansa de Succes: " << sansaSucces << "%.";
+
+    if (getRandomInt(1, 100) <= sansaSucces) {
+        constexpr double SUMA_MOSTENIRE = 500.0;
+        stats.modificaBani(SUMA_MOSTENIRE);
+        stats.modificaStatistica("Fericire", 50);
+
+        std::cout << " [JACKPOT!] Ai primit o moștenire! Bani +" << SUMA_MOSTENIRE << "K. Fericire +50.";
+    } else {
+        std::cout << " [NICIUN EFECT] Nu a apărut nicio moștenire. Viața merge înainte.";
+    }
+}
+
+void MostenireNeasteptata::afiseaza(std::ostream& os) const {
+    os << "Cost: 0K. Risc Esec: 95%. Succesul aduce un bonus financiar masiv (+500K) și Fericire +50.";
+}

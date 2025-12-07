@@ -97,4 +97,15 @@ public:
 private:
     void afiseaza(std::ostream& os) const override;
 };
+
+class MostenireNeasteptata final : public Aventura {
+public:
+    MostenireNeasteptata() : Aventura("Moștenire Neașteptată", 95) {}
+    MostenireNeasteptata(const MostenireNeasteptata& other) = default;
+
+    [[nodiscard]] Aventura* clone() const override { return new MostenireNeasteptata(*this); }
+    void aplicaImpact(Statistici& stats) override;
+private:
+    void afiseaza(std::ostream& os) const override;
+};
 #endif // AVENTURA_H
