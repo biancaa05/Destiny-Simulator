@@ -109,6 +109,11 @@ void Personaj::creeazaRelatieRandom() {
         const Relatie r(nume, status, afectiune);
         adaugaRelatieIntern(r);
 
+        const std::string impactStr = std::string("F: ")+ (impactFericire > 0 ? "+" : "") + std::to_string(impactFericire)
+        + ", S: " + (impactSanatate > 0 ? "+" : "") + std::to_string(impactSanatate);
+
+        adaugaEveniment(varsta, "Noua relatie: " + status + " cu " + nume, impactStr);
+
         stats.modificaStatistica("Fericire", impactFericire);
         stats.modificaStatistica("Sanatate", impactSanatate);
 
@@ -308,6 +313,40 @@ void Personaj::gestioneazaExpeditiePericuloasa() {
     std::cout << "\n--------------------------------\n" << std::endl;
 }
 
+void Personaj::evenimentViataMajor() {
+    if (esteMort || !numeSotSauSotie.empty() || varsta < 23 || varsta > 40) {
+        return;
+    }
+
+    if (getRandomInt(1, 100) > 70) {
+        return;
+    }
+
+    for (const auto& r : relatii) {
+        if (r.getNivelAfectiune() >= 65 && (r.getTipRelatie() == "Prieten" || r.getTipRelatie() == "Coleg")) {
+
+            constexpr double COST_NUNTA = 50.0;
+            constexpr int BONUS_FERICIRE = 30;
+
+            numeSotSauSotie = r.getNumePersoana();
+            stats.modificaBani(-COST_NUNTA);
+            stats.modificaStatistica("Fericire", BONUS_FERICIRE);
+
+            const std::string descriereNunta = "Casatorie cu " + numeSotSauSotie;
+            const std::string impactNunta = std::string("Fericire +")
+                                    + std::to_string(BONUS_FERICIRE)
+                                    + ", Cost: -"
+                                    + std::to_string(static_cast<int>(COST_NUNTA)) + "K";
+
+            adaugaEveniment(varsta, descriereNunta, impactNunta);
+
+            std::cout << "\n[EVENIMENT MAJOR] NUNTA la " << varsta << " de ani cu " << numeSotSauSotie << "!" << std::endl;
+
+            return;
+        }
+    }
+}
+
 void Personaj::afiseazaMeniuDecizie() {
     std::cout << "\n--- OPTIUNI ANUALE (CITITE DIN FISIER) ---" << std::endl;
     std::cout << "0. Continua la Anul Urmator (Fara Decizie majora)" << std::endl;
@@ -402,6 +441,8 @@ void Personaj::iaDecizieDestin(const int alegere) {
         intretinereFinanciara();
         if (verificaDeces()) return true;
         evenimentAleatoriu();
+        if (verificaDeces()) return true;
+        evenimentViataMajor();
         if (verificaDeces()) return true;
 
         std::cout << "\n--- IMPACT ANUAL RELATII ---" << std::endl;

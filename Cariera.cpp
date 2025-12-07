@@ -20,6 +20,7 @@ Cariera::Cariera(const std::string& nume, const int salariu, const int satisf, c
 [[nodiscard]] const std::string& Cariera::getNumeJob() const { return numeJob; }
 [[nodiscard]] int Cariera::getSalariuAnual() const { return salariuAnual; }
 
+
 int Cariera::incearcaPromovare(const int inteligentaPersonaj) {
     const int sansaBaza = (inteligentaPersonaj - cerintaInteligenta) / 2;
     const int sansaFinala = std::max(10, std::min(90, sansaBaza + getRandomInt(-10, 10)));

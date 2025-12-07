@@ -13,6 +13,7 @@ class Personaj {
     std::string numeComplet;
     std::string nationalitate;
     DataNastere dataNastere;
+    std::string numeSotSauSotie;
     int varsta;
     int varstaDecesAleatorie;
     bool esteMort;
@@ -35,6 +36,7 @@ class Personaj {
     void intretinereFinanciara();
     void gestioneazaExpeditiePericuloasa();
     void reseteazaBonusAventura();
+    void evenimentViataMajor();
 
 public:
     static void afiseazaMeniuDecizie();

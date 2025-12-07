@@ -145,6 +145,8 @@ int main() {
         std::cout << "  JOC TERMINAT. REZULTAT FINAL." << std::endl;
         std::cout << "=================================================" << std::endl;
 
+        jucatorPtr->afiseazaIstoricViata();
+
         if (!jucatorPtr->getEsteMort()) {
             std::cout << *jucatorPtr << std::endl;
         }

@@ -19,6 +19,7 @@ public:
     [[nodiscard]] const std::string& getNumeJob() const;
     [[nodiscard]] int getSalariuAnual() const;
 
+
     int incearcaPromovare(int inteligentaPersonaj);
     friend std::ostream& operator<<(std::ostream& os, const Cariera& c);
 };
