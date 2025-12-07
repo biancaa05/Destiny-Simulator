@@ -1,16 +1,22 @@
 #ifndef EVENIMENTVIATA_H
 #define EVENIMENTVIATA_H
 
-#include "sim_common.h"
+#include <iostream>
+#include <string>
 
 class EvenimentViata {
-private:
+    int varsta;
     std::string descriere;
-    std::string tipImpact;
-    int valoareImpact;
+    std::string impactDetalii;
+
 public:
-    EvenimentViata(const std::string& desc, const std::string& tip, int val);
-    friend std::ostream& operator<<(std::ostream& os, const EvenimentViata& e);
+    EvenimentViata(const int varsta, std::string descriere, std::string impact) :
+        varsta(varsta), descriere(std::move(descriere)), impactDetalii(std::move(impact)) {}
+
+    EvenimentViata(const EvenimentViata& other) = default;
+    EvenimentViata& operator=(const EvenimentViata& other) = default;
+
+    friend std::ostream& operator<<(std::ostream& os, const EvenimentViata& ev);
 };
 
-#endif
+#endif // EVENIMENTVIATA_H

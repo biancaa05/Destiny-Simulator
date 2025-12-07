@@ -19,7 +19,14 @@ Statistici::Statistici(const int s,const int f,const int i,const int a) :
     bani(0.0)
 {}
 
-void Statistici::modificaBani(const double suma) { this->bani += suma; }
+void Statistici::modificaBani(const double suma) {
+    this->bani += suma;
+
+    if (constexpr double PRAG_DATORIE_MAXIMA = -200.0; this->bani < PRAG_DATORIE_MAXIMA) {
+        this->bani = PRAG_DATORIE_MAXIMA;
+        std::cout << "[! DATORIE MAXIMA ATINSĂ!] Pierdere Fericire.";
+        modificaStatistica("Fericire", 2);
+    } }
 double Statistici::getBani() const { return this->bani; }
 
 [[nodiscard]] const Statistica& Statistici::getInteligenta() const { return inteligenta; }
@@ -28,14 +35,18 @@ double Statistici::getBani() const { return this->bani; }
 [[nodiscard]] const Statistica& Statistici::getSanatate() const { return sanatate; }
 
 void Statistici::modificaStatistica(const std::string& tip, const int valoare) {
+    constexpr int MAX_STAT = 100;
+
     if (tip == "Sanatate") {
         int nouaValoare = sanatate.getValoare() + valoare;
         if (nouaValoare < 0) { nouaValoare = 0; }
+        if (nouaValoare > MAX_STAT) { nouaValoare = MAX_STAT; }
         sanatate.setValoare(nouaValoare);
     }
     else if (tip == "Fericire") {
         int nouaValoare = fericire.getValoare() + valoare;
         if (nouaValoare < 0) { nouaValoare = 0; }
+        if (nouaValoare > MAX_STAT) { nouaValoare = MAX_STAT; }
         fericire.setValoare(nouaValoare);
     }
     else if (tip == "Inteligenta") {

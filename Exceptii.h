@@ -26,7 +26,7 @@ public:
                        " este invalida. Deciziile valide sunt [0, 4].") {}
 };
 
-class EroareSimulareDurata : public EroareSimulare {
+class EroareSimulareDurata final : public EroareSimulare {
 public:
     EroareSimulareDurata() :
         EroareSimulare("Structura Date: Numarul de ani de simulat este zero/negativ sau vectorul de decizii este incomplet.") {}

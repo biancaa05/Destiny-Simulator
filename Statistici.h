@@ -30,7 +30,7 @@ public:
     [[nodiscard]] bool areStatisticiSanatoase() const;
     friend std::ostream& operator<<(std::ostream& os, const Statistici& s);
 
-    void modificaBani(const double suma);
+    void modificaBani(double suma);
     [[nodiscard]] double getBani() const;
 };
 

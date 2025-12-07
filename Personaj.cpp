@@ -9,25 +9,25 @@ void swap(DataNastere& dn1, DataNastere& dn2) noexcept {
 
 int Personaj::nrPersonajeActive = 0;
 
-Personaj::Personaj(const std::string& nume, const std::string& nat, const int varsta, const DataNastere& dn, Statistici initialStats)
+Personaj::Personaj(const std::string& nume, const std::string& nat, const int v_init, const DataNastere& dn, Statistici initialStats)
 : dataNastere(dn), stats(std::move(initialStats))
 {
     this->numeComplet = nume;
     this->nationalitate = nat;
-    this->varsta = varsta;
+    this->varsta = v_init;
     stats.modificaBani(0.0);
     this->varstaDecesAleatorie = getRandomInt(70, 99);
     this->esteMort = false;
     nrPersonajeActive++;
 }
 
-Personaj::Personaj(const std::string& nume, const std::string& nat, const int varsta, const DataNastere& dn)
-    : Personaj(nume, nat, varsta, dn, Statistici())
+Personaj::Personaj(const std::string& nume, const std::string& nat, const int v_init, const DataNastere& dn)
+    : Personaj(nume, nat, v_init, dn, Statistici())
 {}
 
 Personaj::Personaj(const Personaj& other) 
-    : numeComplet(other.numeComplet), nationalitate(other.nationalitate), 
-      dataNastere(other.dataNastere), varsta(other.varsta), bani(other.bani), 
+    : numeComplet(other.numeComplet), nationalitate(other.nationalitate),
+      dataNastere(other.dataNastere), varsta(other.varsta),
       varstaDecesAleatorie(other.varstaDecesAleatorie), esteMort(other.esteMort), 
       stats(other.stats), cariera(other.cariera), relatii(other.relatii)
 {
@@ -46,7 +46,6 @@ Personaj& Personaj::operator=(const Personaj& other) {
     swap(this->nationalitate, temp.nationalitate);
     swap(this->dataNastere, temp.dataNastere);
     swap(this->varsta, temp.varsta);
-    swap(this->bani, temp.bani);
     swap(this->varstaDecesAleatorie, temp.varstaDecesAleatorie);
     swap(this->esteMort, temp.esteMort);
     swap(this->stats, temp.stats);
@@ -58,7 +57,7 @@ Personaj& Personaj::operator=(const Personaj& other) {
 }
 
 Personaj::~Personaj() {
-    Personaj::nrPersonajeActive--;
+    nrPersonajeActive--;
 }
 
 int Personaj::getNrPersonajeActive() { return nrPersonajeActive; }
@@ -140,7 +139,7 @@ bool Personaj::verificaDeces() {
 
 void Personaj::evenimentAleatoriu() {
     const int fericireInitiala = stats.getFericire().getValoare();
-    const double baniInitiali = bani;
+    const double baniInitiali = stats.getBani();
 
     if (const int sansa = getRandomInt(1, 100); sansa < 35) {
         const int impact = getRandomInt(-15, 20);
@@ -153,7 +152,7 @@ void Personaj::evenimentAleatoriu() {
         else
             if (impact > 10) {
                 descriere = "Ai gasit 50 de lei pe strada!";
-                bani += 0.05;
+                stats.modificaBani(0.05);
                 stats.modificaStatistica("Fericire", impact);
             }
             else {
@@ -167,7 +166,7 @@ void Personaj::evenimentAleatoriu() {
         }
 
         const int fericireFinala = stats.getFericire().getValoare();
-        const double baniFinali = bani;
+        const double baniFinali = stats.getBani();
 
         const int diferentaFericire = fericireFinala - fericireInitiala;
         const double diferentaBani = baniFinali - baniInitiali;
@@ -220,17 +219,45 @@ void Personaj::intretinereFinanciara() {
 
     std::cout << "* FINANCIAR: Salariu primit (+"<< cariera.getSalariuAnual() <<"K), Costuri de trai (-" << costViata << "K)." << std::endl;
 
-    if (bani < 0 && baniInitiali >= 0.0) {
+    if (stats.getBani() < 0 && baniInitiali >= 0.0) {
         std::cout << "--- IMPACT DATORII ---" << std::endl;
         stats.modificaStatistica("Fericire", -10);
         std::cout << "----------------------" << std::endl;
     }
     else
-        if (bani < 0) {
+        if (stats.getBani() < 0) {
         std::cout << "[! ATENTIE] Esti inca in datorii." << std::endl;
         }
 }
+void Personaj::sePreparaPentruAventura() {
+    constexpr int COST_FERICIRE = 10;
 
+    if (this->varsta < 10) {
+        std::cout << "[PREPARARE] Prea mic pentru antrenamente serioase. Jucat în parc! Fericire +5." << std::endl;
+        stats.modificaStatistica("Fericire", 5);
+        return;
+    }
+
+    stats.modificaStatistica("Fericire", -COST_FERICIRE);
+
+    const int bonusSanatate = stats.getSanatate().getValoare() / 15;
+    const int bonusInteligenta = stats.getInteligenta().getValoare() / 20;
+
+    int bonusObtinut = 10 + bonusSanatate + bonusInteligenta;
+
+    if (bonusObtinut > 30) {
+        bonusObtinut = 30;
+    }
+
+    this->bonusAventuraTemporar = bonusObtinut;
+
+    std::cout << "\n[PREPARARE INTENSIVĂ] Te-ai pregatit pentru riscuri. Cost Fericire: -" << COST_FERICIRE << ". ";
+    std::cout << "Bonus de succes (+%) obtinut pentru urmatoarea aventura: +" << this->bonusAventuraTemporar << "%." << std::endl;
+}
+
+void Personaj::reseteazaBonusAventura() {
+    this->bonusAventuraTemporar = 0;
+}
 void Personaj::gestioneazaExpeditiePericuloasa() {
     std::cout << ">> Selectarea unei aventuri pentru anul curent..." << std::endl;
 
@@ -245,13 +272,24 @@ void Personaj::gestioneazaExpeditiePericuloasa() {
         ultimaAventura = std::make_unique<Vanatoare>();
     } else if (tip == 4) {
         ultimaAventura = std::make_unique<NouHobby>();
+    } else if (tip == 5) {
+        ultimaAventura = std::make_unique<EvenimentSocial>();
+    } else if (tip == 6) {
+        ultimaAventura = std::make_unique<ScandalPublic>();
     }
     
     std::cout << ">> Tip Aventura: ";
     ultimaAventura->afiseazaDetalii(std::cout); 
     std::cout << std::endl;
 
-        ultimaAventura->aplicaImpact(stats); 
+    const int riscAventura = ultimaAventura->getSansaEsecBaza();
+    const int riscFinal = std::max(10, riscAventura - this->bonusAventuraTemporar);
+
+    std::cout << ">> Risc Baza: " << riscAventura << "%. Bonus Pregatire: -" << this->bonusAventuraTemporar << "%. Risc Final (Simulat): " << riscFinal << "%." << std::endl;
+
+        ultimaAventura->aplicaImpact(stats);
+
+    this->reseteazaBonusAventura();
         
         if (dynamic_cast<Salvare*>(ultimaAventura.get())) {
             Salvare::oferaMotivatieExtra(stats);
@@ -276,7 +314,8 @@ void Personaj::afiseazaMeniuDecizie() {
     std::cout << "1. Incearca Promovarea/Studiu (Inteligenta)" << std::endl;
     std::cout << "2. Expeditie Periculoasa (Eveniment Major cu Scenarii)" << std::endl;
     std::cout << "3. Creeaza o noua relatie (Prieten/Coleg/Inamic)" << std::endl;
-    std::cout << "4. RENUNTA / SURRENDER (Termina jocul)" << std::endl;
+    std::cout << "4. PREPARARE: Antrenament pentru reducerea riscului (Cost Fericire)" << std::endl;
+    std::cout << "5. RENUNTA / SURRENDER (Termina jocul)" << std::endl;
 }
 
 void Personaj::incepeRelatieNoua(const std::string& nume, const std::string& tip, const int afectiune) {
@@ -315,6 +354,11 @@ void Personaj::iaDecizieDestin(const int alegere) {
             break;
         }
         case 4: {
+            std::cout << "Actiune: Initierea pregătirii anuale..." << std::endl;
+            sePreparaPentruAventura();
+            break;
+        }
+        case 5: {
             std::cout << "Actiune: Jucatorul a renuntat la viata!" << std::endl;
             marcheazaDeces("Renuntare (Surrender)");
             break;
@@ -386,11 +430,26 @@ void Personaj::iaDecizieDestin(const int alegere) {
     return esteMort;
 }
 
+void Personaj::adaugaEveniment(int v_init, const std::string& descriere, const std::string& impact) {
+    istoricEvenimente.emplace_back(v_init, descriere, impact);
+}
+
+void Personaj::afiseazaIstoricViata() const {
+    std::cout << "\n=================================================" << std::endl;
+    std::cout << ">>> ISTORIC CRONOLOGIC: " << numeComplet << " <<<" << std::endl;
+    std::cout << "=================================================" << std::endl;
+
+    for (const auto& ev : istoricEvenimente) {
+        std::cout << ev << std::endl;
+    }
+    std::cout << "=================================================" << std::endl;
+}
+
 
 std::ostream& operator<<(std::ostream& os, const Personaj& p) {
     os << "--- " << p.numeComplet << " (" << p.varsta << " ani, " << p.nationalitate << ") ---" << "\n";
     os << " Data Nastere: " << p.dataNastere << "\n";
-    os << " BANI: " << std::fixed << std::setprecision(2) << p.bani << "K | ";
+    os << " BANI: " << std::fixed << std::setprecision(2) << p.stats.getBani() << "K | ";
     os << p.cariera << "\n";
     os << " STATISTICI: " << p.stats << "\n";
     os << " RELATII: " << "\n";

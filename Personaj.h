@@ -7,19 +7,21 @@
 #include "Cariera.h"
 #include "Relatie.h"
 #include "Aventura.h"
+#include "EvenimentViata.h"
 
 class Personaj {
     std::string numeComplet;
     std::string nationalitate;
     DataNastere dataNastere;
     int varsta;
-    double bani{};
     int varstaDecesAleatorie;
     bool esteMort;
+    int bonusAventuraTemporar = 0;
     Statistici stats;
     Cariera cariera;
     std::vector<Relatie> relatii;
     std::unique_ptr<Aventura> ultimaAventura{};
+    std::vector<EvenimentViata> istoricEvenimente;
 
     static constexpr int MAX_RELATII = 5;
     static int nrPersonajeActive;
@@ -32,13 +34,14 @@ class Personaj {
     void obtinePrimulJob();
     void intretinereFinanciara();
     void gestioneazaExpeditiePericuloasa();
+    void reseteazaBonusAventura();
 
 public:
     static void afiseazaMeniuDecizie();
     static int getNrPersonajeActive();
 
-    Personaj(const std::string& nume, const std::string& nat, int varsta, const DataNastere& dn, Statistici initialStats);
-    Personaj(const std::string& nume, const std::string& nat, int varsta, const DataNastere& dn);
+    Personaj(const std::string& nume, const std::string& nat, int v_init, const DataNastere& dn, Statistici initialStats);
+    Personaj(const std::string& nume, const std::string& nat, int v_init, const DataNastere& dn);
 
     Personaj(const Personaj& other);
     Personaj& operator=(const Personaj& other);
@@ -48,6 +51,9 @@ public:
 
     void incepeRelatieNoua(const std::string& nume, const std::string& tip, int afectiune);
     void iaDecizieDestin(int alegere);
+    void adaugaEveniment(int v_init, const std::string& descriere, const std::string& impact);
+    void afiseazaIstoricViata() const;
+    void sePreparaPentruAventura();
 
     [[nodiscard]] int getVarsta() const;
     [[nodiscard]] bool aplicaAnual(int ani = 1);

@@ -4,17 +4,22 @@
 #include "sim_common.h"
 
 class Aventura {
+protected:
     std::string numeAventura;
-    int sansaEsuecBaza;
+    int sansaEsecBaza;
+
+    virtual void afiseaza(std::ostream& os) const = 0;
+
 public:
     Aventura(std::string  nume, const int sansaBaza) :
-        numeAventura(std::move(nume)), sansaEsuecBaza(sansaBaza) {}
+        numeAventura(std::move(nume)), sansaEsecBaza(sansaBaza) {}
 
     [[nodiscard]] virtual Aventura* clone() const = 0;
     virtual void aplicaImpact(Statistici& stats) = 0;
 
+    [[nodiscard]] int getSansaEsecBaza() const;
     void afiseazaDetalii(std::ostream& os) const {
-        os << "[" << numeAventura << "] Risc Baza: " << sansaEsuecBaza << "%. Rezultate: ";
+        os << "[" << numeAventura << "] Risc Baza: " << sansaEsecBaza << "%. Rezultate: ";
         afiseaza(os);
     }
 
@@ -22,8 +27,6 @@ public:
     Aventura& operator=(const Aventura& other) = default;
     virtual ~Aventura() = default;
 
-protected:
-    virtual void afiseaza(std::ostream& os) const = 0;
 };
 
 
@@ -73,4 +76,25 @@ private:
     void afiseaza(std::ostream& os) const override;
 };
 
+class EvenimentSocial final : public Aventura {
+public:
+    EvenimentSocial() : Aventura("Eveniment Social Important", 25) {}
+    EvenimentSocial(const EvenimentSocial& other) = default;
+
+    [[nodiscard]] Aventura* clone() const override { return new EvenimentSocial(*this); }
+    void aplicaImpact(Statistici& stats) override;
+private:
+    void afiseaza(std::ostream& os) const override;
+};
+
+class ScandalPublic final : public Aventura {
+public:
+    ScandalPublic() : Aventura("Scandal Public/Criză de Reputație", 60) {}
+    ScandalPublic(const ScandalPublic& other) = default;
+
+    [[nodiscard]] Aventura* clone() const override { return new ScandalPublic(*this); }
+    void aplicaImpact(Statistici& stats) override;
+private:
+    void afiseaza(std::ostream& os) const override;
+};
 #endif // AVENTURA_H
