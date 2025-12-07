@@ -34,7 +34,7 @@ Personaj::Personaj(const Personaj& other)
     if (other.ultimaAventura) {
         ultimaAventura.reset(other.ultimaAventura->clone());
     }
-    Personaj::nrPersonajeActive++;
+    nrPersonajeActive++;
 }
 
 Personaj& Personaj::operator=(const Personaj& other) {
@@ -449,21 +449,21 @@ void Personaj::iaDecizieDestin(const int alegere) {
         for (Relatie& r : relatii) {
             r.imbunatatesteRelatia(-2);
 
-            if (const int nivelAfectiune = r.getNivelAfectiune(); r.getTipRelatie() == "Prieten" && nivelAfectiune > 70) {
+            if (const int nivelAfectiune = r.getNivelAfectiune(); r.getTipRelatie() == "Prieten" && nivelAfectiune > 50) {
                 stats.modificaStatistica("Fericire", 3);
                 stats.modificaStatistica("Sanatate", 1);
                 std::cout << "* " << r.getNumePersoana() << " (Prieten Afec: " << nivelAfectiune << ") iti aduce bucurie: Fericire +3, Sanatate +1." << std::endl;
             }
             else
                 if (r.getTipRelatie() == "Inamic" && nivelAfectiune < 30) {
-                    stats.modificaStatistica("Fericire", -5);
-                    stats.modificaStatistica("Sanatate", -2);
-                    std::cout << "* " << r.getNumePersoana() << " (Inamic Afec: " << nivelAfectiune << ") te streseaza: Fericire -5, Sanatate -2." << std::endl;
+                    stats.modificaStatistica("Fericire", -4);
+                    stats.modificaStatistica("Sanatate", -4);
+                    std::cout << "* " << r.getNumePersoana() << " (Inamic Afec: " << nivelAfectiune << ") te streseaza: Fericire -4, Sanatate -4." << std::endl;
                 }
                 else
                     if (r.getTipRelatie() == "Mama" || r.getTipRelatie() == "Tata") {
-                        stats.modificaStatistica("Fericire", 1);
-                        std::cout << "* " << r.getNumePersoana() << " (" << r.getTipRelatie() << ") iti ofera un confort constant: Fericire +1." << std::endl;
+                        stats.modificaStatistica("Fericire", 5);
+                        std::cout << "* " << r.getNumePersoana() << " (" << r.getTipRelatie() << ") iti ofera un confort constant: Fericire +5." << std::endl;
                     }
         }
         std::cout << "----------------------------" << std::endl;

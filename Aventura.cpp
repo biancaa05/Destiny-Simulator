@@ -38,7 +38,7 @@ void NouHobby::aplicaImpact(Statistici& stats) {
         stats.modificaStatistica("Fericire", 20);
         stats.modificaStatistica("Sanatate", 10);
         stats.modificaBani(50.0);
-        std::cout << "\n[EXCELENȚĂ] Ai excelat! Fericire +20, Sanatate +10, si o Bursa de 50K!";
+        std::cout << "\n[EXCELENTA] Ai excelat! Fericire +20, Sanatate +10, si o Bursa de 50K!";
     } else if (sansaFinala <= 40) {
         stats.modificaStatistica("Fericire", -5);
         stats.modificaStatistica("Sanatate", -2);
@@ -85,7 +85,7 @@ void ScandalPublic::aplicaImpact(Statistici& stats) {
     const int sansaEsecAjustata = 60 - (inteligenta / 5);
     stats.modificaStatistica("Fericire", -10);
 
-    std::cout << "\n[SCANDAL] Cost Legal: -" << COST_LEGAL << "K. Esec Bază: 60%. Sansa de Esec Ajustata: " << sansaEsecAjustata << "%.";
+    std::cout << "\n[SCANDAL] Cost Legal: -" << COST_LEGAL << "K. Esec Baza: 60%. Sansa de Esec Ajustata: " << sansaEsecAjustata << "%.";
 
     if (getRandomInt(1, 100) <= sansaEsecAjustata) {
         stats.modificaStatistica("Fericire", -35);
