@@ -266,7 +266,7 @@ void Personaj::reseteazaBonusAventura() {
 void Personaj::gestioneazaExpeditiePericuloasa() {
     std::cout << ">> Selectarea unei aventuri pentru anul curent..." << std::endl;
 
-    const int tip = getRandomInt(1, 3); 
+    const int tip = getRandomInt(1, 6);
     const bool pregatit = stats.areStatisticiSanatoase(); 
 
     if (tip == 1) {
