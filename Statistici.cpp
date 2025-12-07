@@ -6,16 +6,21 @@ void Statistici::randomizeStats() {
     this->fericire = Statistica("Fericire", getRandomInt(30, 90));
     this->inteligenta = Statistica("Inteligenta", getRandomInt(30, 90));
     this->aspect = Statistica("Aspect", getRandomInt(30, 90));
+    this->bani = 0.0;
 }
 
-Statistici::Statistici() {randomizeStats();}
+Statistici::Statistici() : bani(0.0) {randomizeStats();}
 
 Statistici::Statistici(const int s,const int f,const int i,const int a) :
     sanatate("Sanatate", s),
     fericire("Fericire", f),
     inteligenta("Inteligenta", i),
-    aspect("Aspect", a)
+    aspect("Aspect", a),
+    bani(0.0)
 {}
+
+void Statistici::modificaBani(const double suma) { this->bani += suma; }
+double Statistici::getBani() const { return this->bani; }
 
 [[nodiscard]] const Statistica& Statistici::getInteligenta() const { return inteligenta; }
 [[nodiscard]] const Statistica& Statistici::getFericire() const { return fericire; }
@@ -24,17 +29,13 @@ Statistici::Statistici(const int s,const int f,const int i,const int a) :
 
 void Statistici::modificaStatistica(const std::string& tip, const int valoare) {
     if (tip == "Sanatate") {
-        const int nouaValoare = sanatate.getValoare() + valoare;
-        if (nouaValoare <= 0) {
-            throw EroareStatisticaCritica("Sanatate");
-        }
+        int nouaValoare = sanatate.getValoare() + valoare;
+        if (nouaValoare < 0) { nouaValoare = 0; }
         sanatate.setValoare(nouaValoare);
     }
     else if (tip == "Fericire") {
-        const int nouaValoare = fericire.getValoare() + valoare;
-        if (nouaValoare <= 0) {
-            throw EroareStatisticaCritica("Fericire");
-        }
+        int nouaValoare = fericire.getValoare() + valoare;
+        if (nouaValoare < 0) { nouaValoare = 0; }
         fericire.setValoare(nouaValoare);
     }
     else if (tip == "Inteligenta") {

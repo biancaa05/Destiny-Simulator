@@ -62,4 +62,15 @@ private:
     void afiseaza(std::ostream& os) const override;
 };
 
+class NouHobby final : public Aventura {
+public:
+    NouHobby() : Aventura("Incercare Nou Hobby", 40) {}
+    NouHobby(const NouHobby& other) = default;
+
+    [[nodiscard]] Aventura* clone() const override { return new NouHobby(*this); }
+    void aplicaImpact(Statistici& stats) override;
+private:
+    void afiseaza(std::ostream& os) const override;
+};
+
 #endif // AVENTURA_H

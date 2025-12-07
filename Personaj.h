@@ -13,7 +13,7 @@ class Personaj {
     std::string nationalitate;
     DataNastere dataNastere;
     int varsta;
-    double bani;
+    double bani{};
     int varstaDecesAleatorie;
     bool esteMort;
     Statistici stats;

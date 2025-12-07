@@ -1,5 +1,5 @@
-#include "Exceptii.h"
 #include "Personaj.h"
+#include <memory>
 
 void swap(DataNastere& dn1, DataNastere& dn2) noexcept {
     using std::swap;
@@ -15,10 +15,10 @@ Personaj::Personaj(const std::string& nume, const std::string& nat, const int va
     this->numeComplet = nume;
     this->nationalitate = nat;
     this->varsta = varsta;
-    this->bani = 0.0;
+    stats.modificaBani(0.0);
     this->varstaDecesAleatorie = getRandomInt(70, 99);
     this->esteMort = false;
-    Personaj::nrPersonajeActive++;
+    nrPersonajeActive++;
 }
 
 Personaj::Personaj(const std::string& nume, const std::string& nat, const int varsta, const DataNastere& dn)
@@ -214,9 +214,9 @@ void Personaj::intretinereFinanciara() {
         costViata = 10.0;
     }
 
-    const double baniInitiali = bani;
-    bani += cariera.getSalariuAnual();
-    bani -= costViata;
+    const double baniInitiali = stats.getBani();
+    stats.modificaBani(cariera.getSalariuAnual());
+    stats.modificaBani(-costViata);
 
     std::cout << "* FINANCIAR: Salariu primit (+"<< cariera.getSalariuAnual() <<"K), Costuri de trai (-" << costViata << "K)." << std::endl;
 
@@ -238,22 +238,23 @@ void Personaj::gestioneazaExpeditiePericuloasa() {
     const bool pregatit = stats.areStatisticiSanatoase(); 
 
     if (tip == 1) {
-        ultimaAventura.reset(new DrumetieMontana());
+        ultimaAventura = std::make_unique<DrumetieMontana>();
     } else if (tip == 2) {
-        ultimaAventura.reset(new Salvare());
-    } else { 
-        ultimaAventura.reset(new Vanatoare());
+        ultimaAventura = std::make_unique<Salvare>();
+    } else if (tip == 3) {
+        ultimaAventura = std::make_unique<Vanatoare>();
+    } else if (tip == 4) {
+        ultimaAventura = std::make_unique<NouHobby>();
     }
     
     std::cout << ">> Tip Aventura: ";
     ultimaAventura->afiseazaDetalii(std::cout); 
     std::cout << std::endl;
 
-    try {
         ultimaAventura->aplicaImpact(stats); 
         
-        if (auto* salvarePtr = dynamic_cast<Salvare*>(ultimaAventura.get())) {
-            salvarePtr->oferaMotivatieExtra(stats); 
+        if (dynamic_cast<Salvare*>(ultimaAventura.get())) {
+            Salvare::oferaMotivatieExtra(stats);
             std::cout << "\n[LOG: Downcast] Primit motivatie extra (Fericire +5) de la Salvare.";
         }
 
@@ -265,14 +266,6 @@ void Personaj::gestioneazaExpeditiePericuloasa() {
              std::cout << "\n[BONUS] Pregatirea a asigurat un mic bonus!";
              stats.modificaStatistica("Fericire", 5);
         }
-
-    }
-    catch (const EroareStatisticaCritica& e) {
-        std::cout << "\n[ACTIUNE FATALA] " << e.what() << std::endl;
-        marcheazaDeces("Efect Fatal in timpul Expeditiei");
-        ultimaAventura.reset(nullptr); 
-        return;
-    }
 
     std::cout << "\n--------------------------------\n" << std::endl;
 }

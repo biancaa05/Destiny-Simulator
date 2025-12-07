@@ -32,10 +32,5 @@ public:
         EroareSimulare("Structura Date: Numarul de ani de simulat este zero/negativ sau vectorul de decizii este incomplet.") {}
 };
 
-class EroareStatisticaCritica final : public EroareSimulare {
-public:
-    explicit EroareStatisticaCritica(const std::string& stat_nume) :
-        EroareSimulare("Logica Joc: Statistica Critica: '" + stat_nume + "' a atins pragul de 0. Simulare terminata.") {}
-};
 
 #endif // EXCEPTII_H

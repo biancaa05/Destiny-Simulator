@@ -127,7 +127,7 @@ int main() {
         for (int i1 = 0; i1 < ani_simulare; ++i1) {
             if (jucatorPtr->getEsteMort()) break;
 
-            std::cout << "\n--- STARE CURENTA INAINTE DE DECIZIA ANULUI " << jucatorPtr->getVarsta() + 1 << " ---" << std::endl;
+            std::cout << "\n--- STARE CURENTA INAINTE DE DECIZIA ANULUI " << jucatorPtr->getVarsta() << " ---" << std::endl;
             std::cout << *jucatorPtr << std::endl;
 
             int alegere = decizii_anuale[i1];
@@ -164,11 +164,6 @@ int main() {
     }
     catch (const EroareSimulareDurata& e) {
         std::cerr << "\n[EROARE STRUCTURA DATE] " << e.what() << std::endl;
-        delete jucatorPtr;
-        return 1;
-    }
-    catch (const EroareStatisticaCritica& e) {
-        std::cerr << "\n[GAME OVER: EROARE CRITICA] " << e.what() << std::endl;
         delete jucatorPtr;
         return 1;
     }

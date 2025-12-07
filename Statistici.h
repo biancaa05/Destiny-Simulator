@@ -8,7 +8,7 @@ class Statistici {
     Statistica fericire;
     Statistica inteligenta;
     Statistica aspect;
-
+    double bani;
     void randomizeStats();
 
 public:
@@ -29,6 +29,9 @@ public:
 
     [[nodiscard]] bool areStatisticiSanatoase() const;
     friend std::ostream& operator<<(std::ostream& os, const Statistici& s);
+
+    void modificaBani(const double suma);
+    [[nodiscard]] double getBani() const;
 };
 
 #endif // STATISTICI_H
