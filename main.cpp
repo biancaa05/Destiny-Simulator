@@ -3,6 +3,7 @@
 #include "Personaj.h"
 #include "Statistici.h"
 #include "Exceptii.h"
+#include "GeneratorRandom.h"
 
 bool citesteDateIntrare(std::string& nume, std::string& prenume, std::string& nationalitate, int& aniSimulare, std::vector<int>& decizii_anuale) {
     std::ifstream fisierTastatura("tastatura.txt");
@@ -44,19 +45,7 @@ bool citesteDateIntrare(std::string& nume, std::string& prenume, std::string& na
     return true;
 }
 
-int getRandomInt(const int min, const int max) {
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
-    std::uniform_int_distribution<> distrib(min, max);
-    return distrib(gen);
-}
 
-std::string alegeNumeRandom(const bool eBarbat) {
-    if (eBarbat) {
-        return NUME_BARBATI[getRandomInt(0, static_cast<int>(NUME_BARBATI.size()) - 1)];
-    }
-    return NUME_FEMEI[getRandomInt(0, static_cast<int>(NUME_FEMEI.size()) - 1)];
-}
 
 std::string getLunaString(const int luna) {
     static const std::vector<std::string> numeLuni = {
@@ -68,7 +57,7 @@ std::string getLunaString(const int luna) {
 
 DataNastere genereazaDataNastere() {
     DataNastere dn;
-    dn.luna = getRandomInt(1, 12);
+    dn.luna = GeneratorRandom::getInstance().getRandomInt(1, 12);
     int zile_max;
     if (dn.luna == 2) {
         zile_max = 28;
@@ -80,7 +69,7 @@ DataNastere genereazaDataNastere() {
         else {
             zile_max = 31;
         }
-    dn.zi = getRandomInt(1, zile_max);
+    dn.zi = GeneratorRandom::getInstance().getRandomInt(1, zile_max);
     return dn;
 }
 std::ostream& operator<<(std::ostream& os, const DataNastere& dn) {
@@ -106,10 +95,10 @@ int main() {
         constexpr int MAX_HIGH_STAT = 95;
 
         const Statistici stats_initiale(
-            getRandomInt(MIN_HIGH_STAT, MAX_HIGH_STAT),
-            getRandomInt(MIN_HIGH_STAT, MAX_HIGH_STAT),
-            getRandomInt(MIN_HIGH_STAT, MAX_HIGH_STAT),
-            getRandomInt(MIN_HIGH_STAT, MAX_HIGH_STAT)
+            GeneratorRandom::getInstance().getRandomInt(MIN_HIGH_STAT, MAX_HIGH_STAT),
+            GeneratorRandom::getInstance().getRandomInt(MIN_HIGH_STAT, MAX_HIGH_STAT),
+            GeneratorRandom::getInstance().getRandomInt(MIN_HIGH_STAT, MAX_HIGH_STAT),
+            GeneratorRandom::getInstance().getRandomInt(MIN_HIGH_STAT, MAX_HIGH_STAT)
         );
 
         jucatorPtr = new Personaj(numeComplet, nationalitate, 1, dn, stats_initiale);
@@ -119,9 +108,6 @@ int main() {
 
         std::cout << "[TEST LOG] Copia varstei (pentru a suprima warning-ul): " << jucator_copie.getVarsta() << std::endl;
 
-        const std::string nume_mama = alegeNumeRandom(false);
-        jucatorPtr->incepeRelatieNoua(nume_mama, "Mama", 100);
-
         std::cout << "\n--- START VIATA ---" << std::endl;
 
         for (int i1 = 0; i1 < ani_simulare; ++i1) {
@@ -130,7 +116,7 @@ int main() {
             std::cout << "\n--- STARE CURENTA INAINTE DE DECIZIA ANULUI " << jucatorPtr->getVarsta() << " ---" << std::endl;
             std::cout << *jucatorPtr << std::endl;
 
-            int alegere = decizii_anuale[i1];
+            const int alegere = decizii_anuale[i1];
 
             Personaj::afiseazaMeniuDecizie();
             std::cout << "\n> ACTIUNE JUCATOR (DIN FISIER): Se executa decizia " << alegere << " pentru anul " << jucatorPtr->getVarsta()<< "..." << std::endl;
@@ -164,7 +150,7 @@ int main() {
         delete jucatorPtr;
         return 1;
     }
-    catch (const EroareSimulareDurata& e) {
+    catch (const EroareSimulareDurata& e)   {
         std::cerr << "\n[EROARE STRUCTURA DATE] " << e.what() << std::endl;
         delete jucatorPtr;
         return 1;

@@ -1,4 +1,6 @@
 #include "Cariera.h"
+#include "GeneratorRandom.h"
+#include <iostream>
 
 void Cariera::ajusteazaSatisfactia(const int val) {
     satisfactie = std::max(VAL_MIN_STAT, std::min(VAL_MAX_STAT, val));
@@ -23,9 +25,9 @@ Cariera::Cariera(const std::string& nume, const int salariu, const int satisf, c
 
 int Cariera::incearcaPromovare(const int inteligentaPersonaj) {
     const int sansaBaza = (inteligentaPersonaj - cerintaInteligenta) / 2;
-    const int sansaFinala = std::max(10, std::min(90, sansaBaza + getRandomInt(-10, 10)));
+    const int sansaFinala = std::max(10, std::min(90, sansaBaza + GeneratorRandom::getInstance().getRandomInt(-10, 10)));
     std::cout << "* PROMOVARE: Sansa de succes: " << sansaFinala << "%. ";
-    if (getRandomInt(1, 100) <= sansaFinala) {
+    if (GeneratorRandom::getInstance().getRandomInt(1, 100) <= sansaFinala) {
         salariuAnual += 20;
         satisfactie += 15;
         ajusteazaSatisfactia(satisfactie);

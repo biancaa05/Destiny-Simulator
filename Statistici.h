@@ -1,15 +1,16 @@
 #ifndef STATISTICI_H
 #define STATISTICI_H
 
-#include "Statistica.h"
+#include "StatisticaLimita.h"
+#include <string>
 
 class Statistici {
-    Statistica sanatate;
-    Statistica fericire;
-    Statistica inteligenta;
-    Statistica aspect;
-    double bani;
-    void randomizeStats();
+private:
+    StatisticaLimita<int> sanatate;
+    StatisticaLimita<int> fericire;
+    StatisticaLimita<int> inteligenta;
+    StatisticaLimita<int> aspect;
+    StatisticaLimita<double> bani;
 
 public:
     Statistici();
@@ -20,12 +21,12 @@ public:
     Statistici(Statistici&& other) = default;
     Statistici& operator=(Statistici&& other) = default;
 
-    [[nodiscard]] const Statistica& getInteligenta() const;
-    [[nodiscard]] const Statistica& getFericire() const;
-    [[nodiscard]] const Statistica& getAspect() const;
-    [[nodiscard]] const Statistica& getSanatate() const;
-
     void modificaStatistica(const std::string& tip, int valoare);
+
+    [[nodiscard]] const StatisticaLimita<int> &getInteligenta() const;
+    [[nodiscard]] const StatisticaLimita<int> &getFericire() const;
+    [[nodiscard]] const StatisticaLimita<int> &getAspect() const;
+    [[nodiscard]] const StatisticaLimita<int> &getSanatate() const;
 
     [[nodiscard]] bool areStatisticiSanatoase() const;
     friend std::ostream& operator<<(std::ostream& os, const Statistici& s);

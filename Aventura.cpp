@@ -1,5 +1,7 @@
 #include "Aventura.h"
 #include "Statistici.h"
+#include "GeneratorRandom.h"
+#include <iostream>
 
 void DrumetieMontana::aplicaImpact(Statistici& stats) {
     stats.modificaStatistica("Inteligenta", 15);
@@ -34,7 +36,7 @@ void NouHobby::aplicaImpact(Statistici& stats) {
     stats.modificaStatistica("Sanatate", 2);
     stats.modificaStatistica("Inteligenta", 2);
 
-    if (const int sansaFinala = getRandomInt(1, 100); sansaFinala <= 10) {
+    if (const int sansaFinala = GeneratorRandom::getInstance().getRandomInt(1, 100); sansaFinala <= 10) {
         stats.modificaStatistica("Fericire", 20);
         stats.modificaStatistica("Sanatate", 10);
         stats.modificaBani(50.0);
@@ -63,7 +65,7 @@ void EvenimentSocial::aplicaImpact(Statistici& stats) {
 
     std::cout << "\n[SOCIAL] Cost: -5K. Aspect +3. Sansa de Succes Social Ajustata: " << sansaSuccesAjustata << "%.";
 
-    if (getRandomInt(1, 100) <= sansaSuccesAjustata) {
+    if (GeneratorRandom::getInstance().getRandomInt(1, 100) <= sansaSuccesAjustata) {
         stats.modificaStatistica("Fericire", 15);
         stats.modificaStatistica("Aspect", 10);
         std::cout << " [SUCCES!] Ai impresionat! Fericire +15, Aspect +10.";
@@ -87,7 +89,7 @@ void ScandalPublic::aplicaImpact(Statistici& stats) {
 
     std::cout << "\n[SCANDAL] Cost Legal: -" << COST_LEGAL << "K. Esec Baza: 60%. Sansa de Esec Ajustata: " << sansaEsecAjustata << "%.";
 
-    if (getRandomInt(1, 100) <= sansaEsecAjustata) {
+    if (GeneratorRandom::getInstance().getRandomInt(1, 100) <= sansaEsecAjustata) {
         stats.modificaStatistica("Fericire", -35);
         stats.modificaStatistica("Inteligenta", -10);
         std::cout << " [ESEC!] Criza gestionata prost. Fericire -35, Inteligenta -10.";
@@ -108,7 +110,7 @@ void MostenireNeasteptata::aplicaImpact(Statistici& stats) {
 
     std::cout << "\n[MOȘTENIRE] Cost: 0K. Sansa de Succes: " << sansaSucces << "%.";
 
-    if (getRandomInt(1, 100) <= sansaSucces) {
+    if (GeneratorRandom::getInstance().getRandomInt(1, 100) <= sansaSucces) {
         constexpr double SUMA_MOSTENIRE = 500.0;
         stats.modificaBani(SUMA_MOSTENIRE);
         stats.modificaStatistica("Fericire", 50);

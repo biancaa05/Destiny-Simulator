@@ -59,6 +59,12 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         Exceptii.h
         Aventura.h
         Aventura.cpp
+        GeneratorRandom.h
+        SimUtilities.h
+        AventuraFactory.h
+        StatisticaLimita.h
+        Shopping.h
+        Shopping.cpp
 )
 
 # NOTE: Add all defined targets (e.g. executables, libraries, etc. )

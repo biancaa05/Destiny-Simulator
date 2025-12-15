@@ -1,4 +1,6 @@
 #include "Personaj.h"
+#include "SimUtilities.h"
+#include "AventuraFactory.h"
 #include <memory>
 
 void swap(DataNastere& dn1, DataNastere& dn2) noexcept {
@@ -16,9 +18,10 @@ Personaj::Personaj(const std::string& nume, const std::string& nat, const int v_
     this->nationalitate = nat;
     this->varsta = v_init;
     stats.modificaBani(0.0);
-    this->varstaDecesAleatorie = getRandomInt(70, 99);
+    this->varstaDecesAleatorie = GeneratorRandom::getInstance().getRandomInt(70, 99);
     this->esteMort = false;
     nrPersonajeActive++;
+    this->initializeazaRelatiiParente();
 }
 
 Personaj::Personaj(const std::string& nume, const std::string& nat, const int v_init, const DataNastere& dn)
@@ -73,14 +76,48 @@ void Personaj::adaugaRelatieIntern(const Relatie& r) {
     }
 }
 
+void Personaj::cumparaProdus(const Shopping& produs) {
+    if (esteMort) return;
+
+    const double cost = produs.getCost();
+
+    if (stats.getBani() < cost) {
+        std::cout << "[SHOP] Nu ai suficienti bani (" << stats.getBani()
+                  << "K) pentru a cumpara " << produs.getNumeProdus()
+                  << " (Cost: " << cost << "K)." << std::endl;
+        return;
+    }
+
+    stats.modificaBani(-cost);
+    produs.aplicaImpact(stats);
+
+    adaugaEveniment(varsta, "Cumparatura: " + produs.getNumeProdus(),
+                    "Cost: -" + std::to_string(static_cast<int>(cost)) + "K");
+
+    std::cout << "[SHOP] Ai cumparat " << produs.getNumeProdus() << ". Cost: -" << cost << "K." << std::endl;
+}
+
+void Personaj::initializeazaRelatiiParente() {
+    const std::string numeMama = alegeNumeRandom(false);
+    const std::string numeTata = alegeNumeRandom(true);
+
+    const Relatie mama(numeMama, "Mama", 90);
+    adaugaRelatieIntern(mama);
+
+    const Relatie tata(numeTata, "Tata", 85);
+    adaugaRelatieIntern(tata);
+
+    std::cout << "[INIT] Relatii Parinte adaugate: Mama (" << numeMama << ") si Tata (" << numeTata << ")." << std::endl;
+}
+
 void Personaj::creeazaRelatieRandom() {
     if (relatii.size() < MAX_RELATII) {
-        const bool eBarbat = (getRandomInt(0, 1) == 0);
+        const bool eBarbat = (GeneratorRandom::getInstance().getRandomInt(0, 1) == 0);
         const std::string& nume = alegeNumeRandom(eBarbat);
-        const std::string& status = STATUS_RELATII[getRandomInt(0, static_cast<int>(STATUS_RELATII.size()) - 1)];
+        const std::string& status = STATUS_RELATII[GeneratorRandom::getInstance().getRandomInt(0, static_cast<int>(STATUS_RELATII.size()) - 1)];
 
         const int aspectScore = stats.getAspect().getValoare();
-        int afectiune = getRandomInt(20, 95);
+        int afectiune = GeneratorRandom::getInstance().getRandomInt(20, 95);
 
         afectiune = std::max(20, std::min(95, afectiune + (aspectScore / 4)));
 
@@ -95,7 +132,7 @@ void Personaj::creeazaRelatieRandom() {
             if (status == "Coleg") {
                 impactFericire = 5;
                 impactSanatate = 0;
-                afectiune = getRandomInt(40, 75);
+                afectiune = GeneratorRandom::getInstance().getRandomInt(40, 75);
                 afectiune = std::min(75, afectiune + (aspectScore / 6));
             }
             else
@@ -143,13 +180,16 @@ bool Personaj::verificaDeces() {
 }
 
 void Personaj::evenimentAleatoriu() {
+    if (relatii.empty()) return;
+
     const int fericireInitiala = stats.getFericire().getValoare();
     const double baniInitiali = stats.getBani();
 
-    if (const int sansa = getRandomInt(1, 100); sansa < 35) {
-        const int impact = getRandomInt(-15, 20);
-        std::string descriere = "S-a intamplat un eveniment minor in viata ta.";
+    if (const int sansa = GeneratorRandom::getInstance().getRandomInt(1, 100); sansa < 35) {
 
+        const int impact = GeneratorRandom::getInstance().getRandomInt(-15, 20);
+
+        std::string descriere = "S-a intamplat un eveniment minor in viata ta.";
         if (impact < 0) {
             descriere = "Ai pierdut un obiect valoros.";
             stats.modificaStatistica("Fericire", impact);
@@ -166,7 +206,18 @@ void Personaj::evenimentAleatoriu() {
 
         std::cout << "* Eveniment Aleatoriu: " << descriere << std::endl;
 
-        if (getRandomInt(1, 10) > 8) {
+        auto& relatie_afectata = const_cast<Relatie&>(alegeElementAleatoriu(relatii));
+
+        if (GeneratorRandom::getInstance().getRandomInt(1, 100) < 50) {
+            const int schimbare_afectiune = GeneratorRandom::getInstance().getRandomInt(-5, 5);
+            relatie_afectata.imbunatatesteRelatia(schimbare_afectiune);
+
+            std::cout << "  - Relatia cu " << relatie_afectata.getNumePersoana()
+                      << " este afectata: " << (schimbare_afectiune > 0 ? "+" : "")
+                      << schimbare_afectiune << " Afectiune." << std::endl;
+        }
+
+        if (GeneratorRandom::getInstance().getRandomInt(1, 10) > 8) {
             creeazaRelatieRandom();
         }
 
@@ -256,7 +307,7 @@ void Personaj::sePreparaPentruAventura() {
 
     this->bonusAventuraTemporar = bonusObtinut;
 
-    std::cout << "\n[PREPARARE INTENSIVĂ] Te-ai pregatit pentru riscuri. Cost Fericire: -" << COST_FERICIRE << ". ";
+    std::cout << "\n[PREPARARE INTENSIVA] Te-ai pregatit pentru riscuri. Cost Fericire: -" << COST_FERICIRE << ". ";
     std::cout << "Bonus de succes (+%) obtinut pentru urmatoarea aventura: +" << this->bonusAventuraTemporar << "%." << std::endl;
 }
 
@@ -266,24 +317,9 @@ void Personaj::reseteazaBonusAventura() {
 void Personaj::gestioneazaExpeditiePericuloasa() {
     std::cout << ">> Selectarea unei aventuri pentru anul curent..." << std::endl;
 
-    const int tip = getRandomInt(1, 6);
-    const bool pregatit = stats.areStatisticiSanatoase(); 
+    const bool pregatit = stats.areStatisticiSanatoase();
 
-    if (tip == 1) {
-        ultimaAventura = std::make_unique<DrumetieMontana>();
-    } else if (tip == 2) {
-        ultimaAventura = std::make_unique<Salvare>();
-    } else if (tip == 3) {
-        ultimaAventura = std::make_unique<Vanatoare>();
-    } else if (tip == 4) {
-        ultimaAventura = std::make_unique<NouHobby>();
-    } else if (tip == 5) {
-        ultimaAventura = std::make_unique<EvenimentSocial>();
-    } else if (tip == 6) {
-        ultimaAventura = std::make_unique<ScandalPublic>();
-    } else if (tip == 7 ) {
-        ultimaAventura = std::make_unique<MostenireNeasteptata>();
-    }
+    ultimaAventura = AventuraFactory::creeazaAventuraAleatoare();
     
     std::cout << ">> Tip Aventura: ";
     ultimaAventura->afiseazaDetalii(std::cout); 
@@ -303,11 +339,11 @@ void Personaj::gestioneazaExpeditiePericuloasa() {
             std::cout << "\n[LOG: Downcast] Primit motivatie extra (Fericire +5) de la Salvare.";
         }
 
-        if (!pregatit && getRandomInt(1, 100) < 50) {
+        if (!pregatit && GeneratorRandom::getInstance().getRandomInt(1, 100) < 50) {
              std::cout << "\n[ATENTIE] Nepregatirea a condus la o penalizare critica!";
              stats.modificaStatistica("Sanatate", -15);
              stats.modificaStatistica("Fericire", -15);
-        } else if (pregatit && getRandomInt(1, 100) > 80) {
+        } else if (pregatit && GeneratorRandom::getInstance().getRandomInt(1, 100) > 80) {
              std::cout << "\n[BONUS] Pregatirea a asigurat un mic bonus!";
              stats.modificaStatistica("Fericire", 5);
         }
@@ -320,7 +356,7 @@ void Personaj::evenimentViataMajor() {
         return;
     }
 
-    if (getRandomInt(1, 100) > 70) {
+    if (GeneratorRandom::getInstance().getRandomInt(1, 100) > 70) {
         return;
     }
 
@@ -350,13 +386,20 @@ void Personaj::evenimentViataMajor() {
 }
 
 void Personaj::afiseazaMeniuDecizie() {
-    std::cout << "\n--- OPTIUNI ANUALE (CITITE DIN FISIER) ---" << std::endl;
+    std::cout << "\n--- OPTIUNI ANUALE PRINCIPALE ---" << std::endl;
     std::cout << "0. Continua la Anul Urmator (Fara Decizie majora)" << std::endl;
     std::cout << "1. Incearca Promovarea/Studiu (Inteligenta)" << std::endl;
     std::cout << "2. Expeditie Periculoasa (Eveniment Major cu Scenarii)" << std::endl;
     std::cout << "3. Creeaza o noua relatie (Prieten/Coleg/Inamic)" << std::endl;
     std::cout << "4. PREPARARE: Antrenament pentru reducerea riscului (Cost Fericire)" << std::endl;
-    std::cout << "5. RENUNTA / SURRENDER (Termina jocul)" << std::endl;
+    std::cout << "\n--- OPTIUNI SHOPPING ---" << std::endl;
+    std::cout << "5. Cumpara Casa (250K) ++++ FERICIRE ++++" << std::endl;
+    std::cout << "6. Sesiune Spa (5K) ++++ FERICIRE & ASPECT ++++" << std::endl;
+    std::cout << "7. Cumpara Carti (0.5K) ++++ INTELIGENTA ++++" << std::endl;
+    std::cout << "8. Cumpara Masina (50K) ++++ FERICIRE ++++" << std::endl;
+    std::cout << "9. Sesiune Medicamente (0.1K) ++++ SANATATE ++++" << std::endl;
+    std::cout << "\n--- FINALIZARE JOC ---" << std::endl;
+    std::cout << "10. RENUNTA / SURRENDER" << std::endl;
 }
 
 void Personaj::incepeRelatieNoua(const std::string& nume, const std::string& tip, const int afectiune) {
@@ -395,11 +438,41 @@ void Personaj::iaDecizieDestin(const int alegere) {
             break;
         }
         case 4: {
-            std::cout << "Actiune: Initierea pregătirii anuale..." << std::endl;
+            std::cout << "Actiune: Initierea pregatirii anuale..." << std::endl;
             sePreparaPentruAventura();
             break;
         }
         case 5: {
+            std::cout << "Actiune: Cumpararea unei case..." << std::endl;
+            const CumparaCasa casa;
+            cumparaProdus(casa);
+            break;
+        }
+        case 6: {
+            std::cout << "Actiune: Cumpararea unei sesiuni la spa..." << std::endl;
+            const SesiuneSpa spa;
+            cumparaProdus(spa);
+            break;
+        }
+        case 7: {
+            std::cout << "Actiune: Cumpararea unor carti..." << std::endl;
+            const CumparaCarti carti;
+            cumparaProdus(carti);
+            break;
+        }
+        case 8: {
+            std::cout << "Actiune: Cumpararea unei masini..." << std::endl;
+            const CumparaMasina masina;
+            cumparaProdus(masina);
+            break;
+        }
+        case 9: {
+            std::cout << "Actiune: Cumpararea unor medicamente..." << std::endl;
+            const CumparaCasa casa;
+            cumparaProdus(casa);
+            break;
+        }
+        case 10: {
             std::cout << "Actiune: Jucatorul a renuntat la viata!" << std::endl;
             marcheazaDeces("Renuntare (Surrender)");
             break;

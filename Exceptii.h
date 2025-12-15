@@ -23,7 +23,7 @@ class EroareDecizieInvalida final : public EroareSimulare {
 public:
     explicit EroareDecizieInvalida(const int decizie) :
         EroareSimulare("Validare Logica: Optiunea " + std::to_string(decizie) +
-                       " este invalida. Deciziile valide sunt [0, 4].") {}
+                       " este invalida. Deciziile valide sunt [0, 10].") {}
 };
 
 class EroareSimulareDurata final : public EroareSimulare {

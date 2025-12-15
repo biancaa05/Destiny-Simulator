@@ -8,6 +8,7 @@
 #include "Relatie.h"
 #include "Aventura.h"
 #include "EvenimentViata.h"
+#include "Shopping.h"
 
 class Personaj {
     std::string numeComplet;
@@ -37,6 +38,8 @@ class Personaj {
     void gestioneazaExpeditiePericuloasa();
     void reseteazaBonusAventura();
     void evenimentViataMajor();
+    void initializeazaRelatiiParente();
+    void cumparaProdus(const Shopping& produs);
 
 public:
     static void afiseazaMeniuDecizie();

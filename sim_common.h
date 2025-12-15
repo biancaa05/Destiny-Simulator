@@ -1,16 +1,16 @@
 #ifndef SIM_COMMON_H
 #define SIM_COMMON_H
 
-#include <iostream>
 #include <string>
 #include <vector>
 #include <iomanip>
+#include "SimUtilities.h"
 
 constexpr int VAL_MIN_STAT = 0;
 constexpr int VAL_MAX_STAT = 100;
 constexpr int VITEZA_DEGRADARE_FERICIRE = 1;
 constexpr int PRAG_SANATATE_CRITICA = 5;
-constexpr int MAX_OPTIUNI_DECIZIE = 4;
+constexpr int MAX_OPTIUNI_DECIZIE = 10;
 constexpr int VARSTA_MAXIMA_FORTATA = 100;
 
 const std::vector<std::string> NUME_FEMEI = {
@@ -44,8 +44,12 @@ struct Job {
     int cerintaInteligenta;
 };
 
-int getRandomInt(int min, int max);
-std::string alegeNumeRandom(bool eBarbat);
+inline std::string alegeNumeRandom(const bool eBarbat) {
+    if (eBarbat) {
+        return alegeElementAleatoriu(NUME_BARBATI);
+    }
+    return alegeElementAleatoriu(NUME_FEMEI);
+}
 
 std::string getLunaString(int luna);
 DataNastere genereazaDataNastere();
