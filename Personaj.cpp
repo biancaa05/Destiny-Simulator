@@ -466,18 +466,8 @@ void Personaj::aplicaSentinta(const Sentinta& s) {
         std::cout << "Achitare (doar amenda/fara inchisoare)." << std::endl;
     }
     std::cout << "------------------------------------------\n";
-    // ----------------------------------------------------
 }
 
-
-void Personaj::treceAnul() {
-    if (aniSentintaRamasi > 0) {
-        ruleazaAnInInchisoare();
-    } else {
-        varsta++;
-        std::cout << "\n[SIMULARE] Personajul a Implinit " << varsta << " ani. An obisnuit.\n";
-    }
-}
 bool Personaj::esteInInchisoare() const {
     return aniSentintaRamasi > 0;
 }

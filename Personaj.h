@@ -70,7 +70,6 @@ public:
     void actiuneSocialMedia();
     void aplicaSentinta(const Sentinta& s);
     void ruleazaAnInInchisoare();
-    void treceAnul();
     void modificaStatistica(const std::string& nume, double valoare);
 
     [[nodiscard]] int getVarsta() const;
