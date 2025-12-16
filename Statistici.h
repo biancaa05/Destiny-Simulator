@@ -29,6 +29,7 @@ public:
 
     [[nodiscard]] bool areStatisticiSanatoase() const;
     [[nodiscard]] double getMedieFericireIstoric() const;
+    [[nodiscard]] double getStatistica(const std::string& numeStatistica) const;
     friend std::ostream& operator<<(std::ostream& os, const Statistici& s);
 
     void modificaBani(double suma);

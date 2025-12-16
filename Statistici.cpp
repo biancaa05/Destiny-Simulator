@@ -72,6 +72,31 @@ double Statistici::getBani() const { return this->bani.getValoare(); }
 double Statistici::getMedieFericireIstoric() const {
     return fericire.getMedieIstoric();
 }
+double Statistici::getStatistica(const std::string& numeStatistica) const {
+
+    if (numeStatistica == "Sanatate") {
+        return sanatate.getValoare();
+    }
+    else if (numeStatistica == "Fericire") {
+        return fericire.getValoare();
+    }
+    else if (numeStatistica == "Inteligenta") {
+        return inteligenta.getValoare();
+    }
+    else if (numeStatistica == "Aspect") {
+        return aspect.getValoare();
+    }
+    else if (numeStatistica == "Vizibilitate") {
+        return vizibilitate.getValoare();
+    }
+    else if (numeStatistica == "Bani") {
+        return bani.getValoare();
+    }
+    else {
+        std::cerr << "[EROARE LOGICA] Tentativa de citire a unei statistici necunoscute: " << numeStatistica << std::endl;
+        return 0.0;
+    }
+}
 
 std::ostream& operator<<(std::ostream& os, const Statistici& s) {
     os << "Sanatate: " << s.sanatate.getValoare()

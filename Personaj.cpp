@@ -84,6 +84,51 @@ Personaj::~Personaj() {
 int Personaj::getNrPersonajeActive() { return nrPersonajeActive; }
 [[nodiscard]] int Personaj::getVarsta() const { return varsta; }
 [[nodiscard]] bool Personaj::getEsteMort() const {return esteMort;}
+[[nodiscard]] const std::string& Personaj::getNumeComplet() const {return numeComplet;}
+
+void Personaj::setEsteMort(const bool status) {
+    if (this->esteMort == status) return;
+
+    this->esteMort = status;
+
+    if (status) {
+        marcheazaDeces("Cauza externa (Boala Cronica sau Incident)");
+    }
+}
+
+void Personaj::verificaDecesParinti() {
+    for (size_t i = 0; i < relatii.size(); ++i) {
+        Relatie& r = relatii[i];
+
+        if (r.getTipRelatie() != "Mama" && r.getTipRelatie() != "Tata") {
+            continue;
+        }
+        const int nouaVarsta = r.getVarsta() + 1;
+        r.setVarsta(nouaVarsta);
+
+        if (constexpr int VARSTA_RISC_MAX = 70; r.getVarsta() >= VARSTA_RISC_MAX) {
+
+            double riscDeces = 0.005;
+            riscDeces += (r.getVarsta() - VARSTA_RISC_MAX) * 0.02;
+
+            if (GeneratorRandom::getInstance().getDouble(0.0, 1.0) < riscDeces) {
+
+                std::cout << "\n*** TRAGEDIE FAMILIALA! ***" << std::endl;
+                std::cout << r.getTipRelatie() << " " << r.getNumePersoana() << " a decedat la varsta de "
+                          << r.getVarsta() << " ani." << std::endl;
+
+                modificaStatistica("Fericire", -40);
+
+                adaugaEveniment(varsta, "Deces Parinte", r.getTipRelatie() + " " + r.getNumePersoana() + " a murit. Fericire -40.");
+
+                relatii.erase(relatii.begin() + static_cast<long long>(i));
+                i--;
+
+                if (verificaDeces()) return;
+            }
+        }
+    }
+}
 
 void Personaj::adaugaRelatieIntern(const Relatie& r) {
     if (relatii.size() < MAX_RELATII) {
@@ -178,10 +223,10 @@ void Personaj::initializeazaRelatiiParente() {
     const std::string numeMama = alegeNumeRandom(false);
     const std::string numeTata = alegeNumeRandom(true);
 
-    const Relatie mama(numeMama, "Mama", 90);
+    const Relatie mama(numeMama, "Mama", GeneratorRandom::getInstance().getRandomInt(75, 100), GeneratorRandom::getInstance().getRandomInt(18, 40));
     adaugaRelatieIntern(mama);
 
-    const Relatie tata(numeTata, "Tata", 85);
+    const Relatie tata(numeTata, "Tata", GeneratorRandom::getInstance().getRandomInt(75, 100), GeneratorRandom::getInstance().getRandomInt(18, 40));
     adaugaRelatieIntern(tata);
 
     std::cout << "[INIT] Relatii Parinte adaugate: Mama (" << numeMama << ") si Tata (" << numeTata << ")." << std::endl;
@@ -220,7 +265,7 @@ void Personaj::creeazaRelatieRandom() {
                         afectiune = std::min(10, afectiune);
                 }
 
-        const Relatie r(nume, status, afectiune);
+        const Relatie r(nume, status, afectiune, varsta);
         adaugaRelatieIntern(r);
 
         const std::string impactStr = std::string("F: ")+ (impactFericire > 0 ? "+" : "") + std::to_string(impactFericire)
@@ -691,6 +736,50 @@ void Personaj::iaDecizieDestin(const int alegere) {
                 adaugaEveniment(varsta, "Nasterea unui Copil", "A aparut un membru nou in familie.");
             }
         }
+
+        for (const auto& boala : boliCronice) {
+            boala.aplicaEfectAnual(*this);
+            if (verificaDeces())
+                return true;
+        }
+
+        if (varsta >= 18) {
+            double riscAnualBoala = 0.005 + static_cast<double>(varsta - 18) * 0.0005;
+
+            if (const double sanatateActuala = stats.getStatistica("Sanatate"); sanatateActuala < 50) {
+                riscAnualBoala *= 2.0;
+            }
+
+            if (GeneratorRandom::getInstance().getDouble(0.0, 1.0) < riscAnualBoala) {
+
+                std::vector<Boala> boliPosibile = {
+                    Boala("Diabet Tip II", -1.0, 3.0, 0.001),
+                    Boala("Hipertensiune Arteriala", -0.8, 2.5, 0.002),
+                    Boala("Boli de Inima Cronice", -2.5, 10.0, 0.015),
+                    Boala("Astm Cronic", -0.5, 1.5, 0.0005)
+                };
+                const int indexMaxim = static_cast<int>(boliPosibile.size() - 1);
+                const int idxBoala = GeneratorRandom::getInstance().getRandomInt(0, indexMaxim);
+
+                bool dejaExista = false;
+                for (const auto& existingBoala : boliCronice) {
+                    if (existingBoala.getNume() == boliPosibile[idxBoala].getNume()) {
+                        dejaExista = true;
+                        break;
+                    }
+                }
+
+                if (!dejaExista) {
+                    boliCronice.push_back(boliPosibile[idxBoala]);
+
+                    std::cout << "\n!!! AVERTISMENT SANATATE !!!" << std::endl;
+                    std::cout << numeComplet << " a contractat " << boliPosibile[idxBoala].getNume() << " la varsta de " << varsta << " ani.\n";
+                    std::cout << "  (Cost anual tratament: " << std::fixed << std::setprecision(2) << boliPosibile[idxBoala].getCostTratamentAnual() << "K)\n";
+                    adaugaEveniment(varsta, "Boala Contractata", "A inceput tratamentul pentru " + boliPosibile[idxBoala].getNume());
+                }
+            }
+        }
+
         if (varsta >= varstaDecesAleatorie || varsta >= VARSTA_MAXIMA_FORTATA) {
             marcheazaDeces("Batranete");
             return true;
@@ -699,6 +788,8 @@ void Personaj::iaDecizieDestin(const int alegere) {
         if (varsta == 18) {
             obtinePrimulJob();
         }
+        verificaDecesParinti();
+        if (verificaDeces()) return true;
 
         std::cout << "\n=================================================" << std::endl;
         std::cout << "--- START ANUL " << varsta << " | " << numeComplet << " ---" << std::endl;

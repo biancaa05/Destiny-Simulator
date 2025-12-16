@@ -7,6 +7,7 @@
 #include "Cariera.h"
 #include "Relatie.h"
 #include "Aventura.h"
+#include "Boala.h"
 #include "EvenimentViata.h"
 #include "ReteaSociala.h"
 #include "Shopping.h"
@@ -22,6 +23,7 @@ class Personaj {
     bool esteMort;
     double pensiaAnuala{};
     bool estePensionar{};
+    std::vector<Boala> boliCronice;
     int numarCopii{};
     Statistici stats;
     Cariera cariera;
@@ -51,6 +53,7 @@ class Personaj {
     void cumparaProdus(const Shopping& produs);
     void executaActiuneCrima(int crimaID);
     void pensioneaza();
+    void verificaDecesParinti();
 
 public:
     static void afiseazaMeniuDecizie();
@@ -81,9 +84,10 @@ public:
     [[nodiscard]] bool getEsteMort() const;
     [[nodiscard]] bool esteInInchisoare() const;
     [[nodiscard]] const Statistici &getStatistici() const;
-
+    [[nodiscard]] const std::string& getNumeComplet() const;
 
     friend std::ostream& operator<<(std::ostream& os, const Personaj& p);
+    void setEsteMort(bool status);
 };
 
 #endif // PERSONAJ_H
