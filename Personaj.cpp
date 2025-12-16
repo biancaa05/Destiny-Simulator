@@ -29,6 +29,9 @@ Personaj::Personaj(const std::string& nume, const std::string& nat, const int v_
     this->aniSentintaRamasi = 0;
     this->cazierNivel = 0;
     this->bonusAventuraTemporar = 0;
+    this->pensiaAnuala = 0.0;
+    this->estePensionar = false;
+    this->numarCopii = 0;
     nrPersonajeActive++;
     this->initializeazaRelatiiParente();
 }
@@ -141,6 +144,27 @@ void Personaj::cumparaProdus(const Shopping& produs) {
                     "Cost: -" + std::to_string(static_cast<int>(cost)) + "K");
 
     std::cout << "[SHOP] Ai cumparat " << produs.getNumeProdus() << ". Cost: -" << cost << "K." << std::endl;
+}
+
+void Personaj::pensioneaza() {
+    if (estePensionar) return;
+
+    const double SALARIU_FINAL = cariera.getSalariuAnual();
+    constexpr double RATA_PENSIE = 0.60;
+
+    pensiaAnuala = SALARIU_FINAL * RATA_PENSIE;
+    estePensionar = true;
+
+    stats.modificaStatistica("Fericire", 15);
+
+    std::cout << "\n=================================================" << std::endl;
+    std::cout << ">>> PENSIONARE! <<<" << std::endl;
+    std::cout << numeComplet << " s-a pensionat la varsta de " << varsta << " ani." << std::endl;
+    std::cout << "Pensia Anuală calculata (60% din salariul final): " << std::fixed
+              << std::setprecision(2) << pensiaAnuala << "K." << std::endl;
+    std::cout << "=================================================" << std::endl;
+
+    adaugaEveniment(varsta, "Pensionare (Final Cariera)", "Venit redus, Fericire +15.");
 }
 
 void Personaj::actiuneSocialMedia() {
@@ -318,16 +342,23 @@ void Personaj::obtinePrimulJob() {
 
 void Personaj::intretinereFinanciara() {
     double costViata = 0.0;
+    double venitAnual = 0.0;
     if (varsta >= 18) {
         costViata = 10.0;
     }
+    costViata += (numarCopii * 3.0);
 
     const double baniInitiali = stats.getBani();
     stats.modificaBani(cariera.getSalariuAnual());
     stats.modificaBani(-costViata);
 
-    std::cout << "* FINANCIAR: Salariu primit (+"<< cariera.getSalariuAnual() <<"K), Costuri de trai (-" << costViata << "K)." << std::endl;
-
+    if (estePensionar) {
+        venitAnual = pensiaAnuala;
+        std::cout << "* FINANCIAR: Pensie primita (+"<< std::fixed << std::setprecision(2) << venitAnual <<"K), ";
+    } else {
+        venitAnual = cariera.getSalariuAnual();
+        std::cout << "* FINANCIAR: Salariu primit (+"<< std::fixed << std::setprecision(2) << venitAnual <<"K), ";
+    }
     if (stats.getBani() < 0 && baniInitiali >= 0.0) {
         std::cout << "--- IMPACT DATORII ---" << std::endl;
         stats.modificaStatistica("Fericire", -10);
@@ -643,7 +674,23 @@ void Personaj::iaDecizieDestin(const int alegere) {
             ruleazaAnInInchisoare();
             continue;
         }
+        if (varsta == 65 && !estePensionar) {
+            pensioneaza();
+        }
 
+        if (varsta >= 18 && varsta <= 40 && !numeSotSauSotie.empty()) {
+            if (GeneratorRandom::getInstance().getRandomInt(1, 100) <= 5) {
+                numarCopii++;
+                std::cout << "\n+++ EVENIMENT MAJOR! +++" << std::endl;
+                std::cout << "Ai un copil! Acum ai " << numarCopii << " copii." << std::endl;
+                std::cout << "+++ COST INITIAL: Bani -5K, Fericire -5. +++\n";
+
+                modificaStatistica("Fericire", -5);
+                modificaStatistica("Bani", -5.0);
+
+                adaugaEveniment(varsta, "Nasterea unui Copil", "A aparut un membru nou in familie.");
+            }
+        }
         if (varsta >= varstaDecesAleatorie || varsta >= VARSTA_MAXIMA_FORTATA) {
             marcheazaDeces("Batranete");
             return true;
@@ -720,7 +767,7 @@ void Personaj::afiseazaVerdictFinal() const {
     std::cout << "\n=================================================" << std::endl;
     std::cout << ">>> VERDICT FINAL: VIATA LUI " << numeComplet << " <<<" << std::endl;
     std::cout << "=================================================" << std::endl;
-    std::cout << "Varsta de deces: " << varsta << " ani. Causa: " << istoricEvenimente.back().getDescriere() << std::endl;
+    std::cout << "Varsta de deces: " << varsta << " ani. Ultimul Eveniment Important: " << istoricEvenimente.back().getDescriere() << std::endl;
     std::cout << "Media istorica a Fericirii de-a lungul vietii: " << std::fixed << std::setprecision(1) << medieFericire << "%." << std::endl;
 
     std::string verdictViata;

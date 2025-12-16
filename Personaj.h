@@ -20,6 +20,9 @@ class Personaj {
     int varsta;
     int varstaDecesAleatorie;
     bool esteMort;
+    double pensiaAnuala{};
+    bool estePensionar{};
+    int numarCopii{};
     Statistici stats;
     Cariera cariera;
     std::vector<Relatie> relatii;
@@ -47,6 +50,7 @@ class Personaj {
     void initializeazaRelatiiParente();
     void cumparaProdus(const Shopping& produs);
     void executaActiuneCrima(int crimaID);
+    void pensioneaza();
 
 public:
     static void afiseazaMeniuDecizie();
