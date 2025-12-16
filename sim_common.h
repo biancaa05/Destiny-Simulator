@@ -31,6 +31,12 @@ const std::vector<std::string> NUME_BARBATI = {
 
 const std::vector<std::string> STATUS_RELATII = {"Prieten", "Coleg", "Inamic"};
 
+struct DestinatieVacanta {
+    std::string nume;
+    double costBaza;
+    int bonusFericire;
+};
+
 struct DataNastere {
     int zi=0;
     int luna=0;
@@ -42,6 +48,14 @@ struct Job {
     int salariuAnual;
     int satisfactie;
     int cerintaInteligenta;
+};
+
+const std::vector<DestinatieVacanta> DESTINATII_VACANTA = {
+    {"Litoralul Romanesc", 3.0, 10},
+    {"Camping in Muntii Carpati", 1.5, 12},
+    {"Capitala Europeana (City Break)", 10.0, 20},
+    {"Excursie Exotica (Insula)", 35.0, 40},
+    {"Vacanta de Lux (Circuit Asia)", 80.0, 50}
 };
 
 inline std::string alegeNumeRandom(const bool eBarbat) {

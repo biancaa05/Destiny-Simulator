@@ -160,6 +160,9 @@ int main() {
         delete jucatorPtr;
         return 1;
     }
+    catch (const std::out_of_range& e) {
+        std::cerr << "\n[EROARE CRITICA]: Eroare la accesarea listelor: " << e.what() << std::endl;
+    }
     catch (const std::exception& e) {
         std::cerr << "\n[EROARE NECUNOSCUTA] O exceptie de sistem a aparut: " << e.what() << std::endl;
         delete jucatorPtr;

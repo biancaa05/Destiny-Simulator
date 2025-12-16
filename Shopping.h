@@ -12,6 +12,7 @@ protected:
     double costBaza;
 
 public:
+    Shopping()=default;
     Shopping(std::string  nume, const double cost) : numeProdus(std::move(nume)), costBaza(cost) {}
     virtual void aplicaImpact(Statistici& stats) const = 0;
     virtual void afiseazaDetalii(std::ostream& os) const {

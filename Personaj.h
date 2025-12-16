@@ -59,6 +59,7 @@ public:
     void adaugaEveniment(int v_init, const std::string& descriere, const std::string& impact);
     void afiseazaIstoricViata() const;
     void sePreparaPentruAventura();
+    void planificaVacanta();
 
     [[nodiscard]] int getVarsta() const;
     [[nodiscard]] bool aplicaAnual(int ani = 1);

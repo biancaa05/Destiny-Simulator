@@ -9,6 +9,7 @@ class Relatie {
     int nivelAfectiune;
 
 public:
+    Relatie()=default;
     Relatie(const std::string& nume, const std::string& tip, int afectiune);
     Relatie(const Relatie& other);
     Relatie& operator=(const Relatie& other);

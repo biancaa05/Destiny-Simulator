@@ -1,6 +1,7 @@
 #include "Personaj.h"
 #include "SimUtilities.h"
 #include "AventuraFactory.h"
+#include "Vacanta.h"
 #include <memory>
 
 void swap(DataNastere& dn1, DataNastere& dn2) noexcept {
@@ -74,6 +75,21 @@ void Personaj::adaugaRelatieIntern(const Relatie& r) {
     else {
         std::cout << "Limita de relatii atinsa." << std::endl;
     }
+}
+
+void Personaj::planificaVacanta() {
+    if (esteMort) return;
+    const Vacanta vacantaNoua;
+    std::cout << "\n[DECIZIE VACANTA] Esti gata sa mergi in vacanta la "
+              << vacantaNoua.getDestinatie().nume << " (Cost: "
+              << vacantaNoua.getDestinatie().costBaza << "K)?" << std::endl;
+
+    vacantaNoua.organizeaza(stats, relatii);
+    const std::string impactVacanta = std::string("Fericire +")
+                                    + std::to_string(vacantaNoua.getDestinatie().bonusFericire)
+                                    + ", Cost: -"
+                                    + std::to_string(vacantaNoua.getDestinatie().costBaza) + "K";
+    adaugaEveniment(varsta, "Vacanta la " + vacantaNoua.getDestinatie().nume, impactVacanta);
 }
 
 void Personaj::cumparaProdus(const Shopping& produs) {
@@ -392,14 +408,15 @@ void Personaj::afiseazaMeniuDecizie() {
     std::cout << "2. Expeditie Periculoasa (Eveniment Major cu Scenarii)" << std::endl;
     std::cout << "3. Creeaza o noua relatie (Prieten/Coleg/Inamic)" << std::endl;
     std::cout << "4. PREPARARE: Antrenament pentru reducerea riscului (Cost Fericire)" << std::endl;
+    std::cout << "5. PLANIFICA VACANTA (Destinatie si Parteneri aleatorii)" << std::endl;
     std::cout << "\n--- OPTIUNI SHOPPING ---" << std::endl;
-    std::cout << "5. Cumpara Casa (250K) ++++ FERICIRE ++++" << std::endl;
-    std::cout << "6. Sesiune Spa (5K) ++++ FERICIRE & ASPECT ++++" << std::endl;
-    std::cout << "7. Cumpara Carti (0.5K) ++++ INTELIGENTA ++++" << std::endl;
-    std::cout << "8. Cumpara Masina (50K) ++++ FERICIRE ++++" << std::endl;
-    std::cout << "9. Sesiune Medicamente (0.1K) ++++ SANATATE ++++" << std::endl;
+    std::cout << "6. Cumpara Casa (250K) ++++ FERICIRE ++++" << std::endl;
+    std::cout << "7. Sesiune Spa (5K) ++++ FERICIRE & ASPECT ++++" << std::endl;
+    std::cout << "8. Cumpara Carti (0.5K) ++++ INTELIGENTA ++++" << std::endl;
+    std::cout << "9. Cumpara Masina (50K) ++++ FERICIRE ++++" << std::endl;
+    std::cout << "10. Sesiune Medicamente (0.1K) ++++ SANATATE ++++" << std::endl;
     std::cout << "\n--- FINALIZARE JOC ---" << std::endl;
-    std::cout << "10. RENUNTA / SURRENDER" << std::endl;
+    std::cout << "11. RENUNTA / SURRENDER" << std::endl;
 }
 
 void Personaj::incepeRelatieNoua(const std::string& nume, const std::string& tip, const int afectiune) {
@@ -443,36 +460,41 @@ void Personaj::iaDecizieDestin(const int alegere) {
             break;
         }
         case 5: {
+            std::cout << "Actiune: Planificare Vacanta." << std::endl;
+            planificaVacanta();
+            break;
+        }
+        case 6: {
             std::cout << "Actiune: Cumpararea unei case..." << std::endl;
             const CumparaCasa casa;
             cumparaProdus(casa);
             break;
         }
-        case 6: {
+        case 7: {
             std::cout << "Actiune: Cumpararea unei sesiuni la spa..." << std::endl;
             const SesiuneSpa spa;
             cumparaProdus(spa);
             break;
         }
-        case 7: {
+        case 8: {
             std::cout << "Actiune: Cumpararea unor carti..." << std::endl;
             const CumparaCarti carti;
             cumparaProdus(carti);
             break;
         }
-        case 8: {
+        case 9: {
             std::cout << "Actiune: Cumpararea unei masini..." << std::endl;
             const CumparaMasina masina;
             cumparaProdus(masina);
             break;
         }
-        case 9: {
+        case 10: {
             std::cout << "Actiune: Cumpararea unor medicamente..." << std::endl;
             const CumparaCasa casa;
             cumparaProdus(casa);
             break;
         }
-        case 10: {
+        case 11: {
             std::cout << "Actiune: Jucatorul a renuntat la viata!" << std::endl;
             marcheazaDeces("Renuntare (Surrender)");
             break;

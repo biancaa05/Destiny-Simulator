@@ -2,7 +2,6 @@
 #define GENERATORRANDOM_H
 
 #include <random>
-#include <algorithm>
 
 class GeneratorRandom {
 private:
@@ -14,7 +13,6 @@ public:
     GeneratorRandom(const GeneratorRandom&) = delete;
     GeneratorRandom& operator=(const GeneratorRandom&) = delete;
 
-public:
     static GeneratorRandom& getInstance() {
         static GeneratorRandom instance;
         return instance;
