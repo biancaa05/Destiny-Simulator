@@ -419,11 +419,6 @@ void Personaj::afiseazaMeniuDecizie() {
     std::cout << "11. RENUNTA / SURRENDER" << std::endl;
 }
 
-void Personaj::incepeRelatieNoua(const std::string& nume, const std::string& tip, const int afectiune) {
-    if (esteMort) { return; }
-    const Relatie r(nume, tip, afectiune);
-    adaugaRelatieIntern(r);
-}
 
 void Personaj::iaDecizieDestin(const int alegere) {
     if (esteMort) return;
@@ -583,6 +578,37 @@ void Personaj::afiseazaIstoricViata() const {
     std::cout << "=================================================" << std::endl;
 }
 
+void Personaj::afiseazaVerdictFinal() const {
+    if (!getEsteMort()) {
+        std::cout << "\n>>> SIMULAREA S-A OPRIT INAINTE DE MOARTE. Nu se poate emite un verdict final. <<<" << std::endl;
+        return;
+    }
+
+    const double medieFericire = stats.getMedieFericireIstoric();
+
+    std::cout << "\n=================================================" << std::endl;
+    std::cout << ">>> VERDICT FINAL: VIATA LUI " << numeComplet << " <<<" << std::endl;
+    std::cout << "=================================================" << std::endl;
+    std::cout << "Varsta de deces: " << varsta << " ani. Causa: " << istoricEvenimente.back().getDescriere() << std::endl;
+    std::cout << "Media istorica a Fericirii de-a lungul vietii: " << std::fixed << std::setprecision(1) << medieFericire << "%." << std::endl;
+
+    std::string verdictViata;
+
+    if (medieFericire >= 80.0) {
+        verdictViata = "Viata Absolut Fericita (80-100%): O viata plina de bucurii, impliniri si relatii de nepretuit. A murit multumit si fara regrete.";
+    } else if (medieFericire >= 60.0) {
+        verdictViata = "Viata implinita (60-79%): O viata buna, echilibrata, cu provocari depasite si multe momente de satisfactie personala.";
+    } else if (medieFericire >= 40.0) {
+        verdictViata = "Viata Mediocra/Comuna (40-59%): O viata obisnuita, cu suisuri si coborasuri. A luptat, dar a avut parte si de frustrari semnificative.";
+    } else if (medieFericire >= 20.0) {
+        verdictViata = "Viata Trista/Dificila (20-39%): O viata marcata de suferinta, esecuri financiare sau pierderi majore. A murit cu multe regrete.";
+    } else {
+        verdictViata = "Viata Tragedie/Deprimanta (0-19%): O existenta dominată de nefericire profunda, izolare si probleme de sanatate nerezolvate.";
+    }
+
+    std::cout << "\nVERDICT NARATIV: " << verdictViata << std::endl;
+    std::cout << "=================================================" << std::endl;
+}
 
 std::ostream& operator<<(std::ostream& os, const Personaj& p) {
     os << "--- " << p.numeComplet << " (" << p.varsta << " ani, " << p.nationalitate << ") ---" << "\n";

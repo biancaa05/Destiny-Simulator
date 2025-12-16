@@ -20,10 +20,6 @@ Statistica& Statistica::operator=(const Statistica& other) {
 
 [[nodiscard]] int Statistica::getValoare() const { return valoare; }
 
-void Statistica::setValoare(const int nouaValoare) {
-    this->valoare = std::max(VAL_MIN_STAT, std::min(VAL_MAX_STAT, nouaValoare));
-}
-
 std::ostream& operator<<(std::ostream& os, const Statistica& s) {
     os << "[" << s.nume << ": " << s.valoare << "]";
     return os;

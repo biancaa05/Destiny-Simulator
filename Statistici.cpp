@@ -63,6 +63,10 @@ double Statistici::getBani() const { return this->bani.getValoare(); }
     return sanatate.getValoare() > PRAG_SANATATE_BINE && fericire.getValoare() > PRAG_SANATATE_BINE;
 }
 
+double Statistici::getMedieFericireIstoric() const {
+    return fericire.getMedieIstoric();
+}
+
 std::ostream& operator<<(std::ostream& os, const Statistici& s) {
     os << "Sanatate: " << s.sanatate.getValoare()
        << ", Fericire: " << s.fericire.getValoare()

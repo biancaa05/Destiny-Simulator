@@ -54,12 +54,12 @@ public:
     Personaj& operator=(Personaj&& other) = delete;
     ~Personaj();
 
-    void incepeRelatieNoua(const std::string& nume, const std::string& tip, int afectiune);
     void iaDecizieDestin(int alegere);
     void adaugaEveniment(int v_init, const std::string& descriere, const std::string& impact);
     void afiseazaIstoricViata() const;
     void sePreparaPentruAventura();
     void planificaVacanta();
+    void afiseazaVerdictFinal() const;
 
     [[nodiscard]] int getVarsta() const;
     [[nodiscard]] bool aplicaAnual(int ani = 1);

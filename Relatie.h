@@ -6,7 +6,7 @@
 class Relatie {
     std::string numePersoana;
     std::string tipRelatie;
-    int nivelAfectiune;
+    int nivelAfectiune=0;
 
 public:
     Relatie()=default;

@@ -18,6 +18,7 @@ public:
     EvenimentViata& operator=(const EvenimentViata& other) = default;
     ~EvenimentViata()=default;
 
+    [[nodiscard]] const std::string& getDescriere() const { return descriere; }
     friend std::ostream& operator<<(std::ostream& os, const EvenimentViata& ev);
 };
 

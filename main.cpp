@@ -132,6 +132,7 @@ int main() {
         std::cout << "=================================================" << std::endl;
 
         jucatorPtr->afiseazaIstoricViata();
+        jucatorPtr->afiseazaVerdictFinal();
 
         if (!jucatorPtr->getEsteMort()) {
             std::cout << *jucatorPtr << std::endl;

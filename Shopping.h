@@ -9,7 +9,7 @@
 class Shopping {
 protected:
     std::string numeProdus;
-    double costBaza;
+    double costBaza=0;
 
 public:
     Shopping()=default;

@@ -15,7 +15,6 @@ public:
     Statistica& operator=(Statistica&& other) = default;
 
     [[nodiscard]] int getValoare() const;
-    void setValoare(int nouaValoare);
 
     friend std::ostream& operator<<(std::ostream& os, const Statistica& s);
 };

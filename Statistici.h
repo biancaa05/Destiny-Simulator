@@ -29,6 +29,7 @@ public:
     [[nodiscard]] const StatisticaLimita<int> &getSanatate() const;
 
     [[nodiscard]] bool areStatisticiSanatoase() const;
+    [[nodiscard]] double getMedieFericireIstoric() const;
     friend std::ostream& operator<<(std::ostream& os, const Statistici& s);
 
     void modificaBani(double suma);
