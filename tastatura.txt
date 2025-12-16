@@ -5,9 +5,9 @@ Mihai Ionescu Roman
 0
 0
 0
-0
-0
-0
+12
+12
+12
 0
 0
 6
@@ -23,10 +23,10 @@ Mihai Ionescu Roman
 3
 3
 4
-4
-6
-4
-7
+12
+12
+13
+13
 8
 5
 5

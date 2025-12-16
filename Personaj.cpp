@@ -1,8 +1,13 @@
 #include "Personaj.h"
 #include "SimUtilities.h"
 #include "AventuraFactory.h"
+#include "Sentinta.h"
 #include "Vacanta.h"
+#include "Statistici.h"
+#include "Exceptii.h"
+#include "Crima.h"
 #include <memory>
+#include <cmath>
 
 void swap(DataNastere& dn1, DataNastere& dn2) noexcept {
     using std::swap;
@@ -21,6 +26,9 @@ Personaj::Personaj(const std::string& nume, const std::string& nat, const int v_
     stats.modificaBani(0.0);
     this->varstaDecesAleatorie = GeneratorRandom::getInstance().getRandomInt(70, 99);
     this->esteMort = false;
+    this->aniSentintaRamasi = 0;
+    this->cazierNivel = 0;
+    this->bonusAventuraTemporar = 0;
     nrPersonajeActive++;
     this->initializeazaRelatiiParente();
 }
@@ -29,11 +37,13 @@ Personaj::Personaj(const std::string& nume, const std::string& nat, const int v_
     : Personaj(nume, nat, v_init, dn, Statistici())
 {}
 
-Personaj::Personaj(const Personaj& other) 
+Personaj::Personaj(const Personaj& other)
     : numeComplet(other.numeComplet), nationalitate(other.nationalitate),
       dataNastere(other.dataNastere), varsta(other.varsta),
-      varstaDecesAleatorie(other.varstaDecesAleatorie), esteMort(other.esteMort), 
-      stats(other.stats), cariera(other.cariera), relatii(other.relatii)
+      varstaDecesAleatorie(other.varstaDecesAleatorie), esteMort(other.esteMort),
+      stats(other.stats), cariera(other.cariera), relatii(other.relatii),
+      aniSentintaRamasi(other.aniSentintaRamasi), cazierNivel(other.cazierNivel),
+      bonusAventuraTemporar(other.bonusAventuraTemporar), numeSotSauSotie(other.numeSotSauSotie)
 {
     if (other.ultimaAventura) {
         ultimaAventura.reset(other.ultimaAventura->clone());
@@ -42,9 +52,9 @@ Personaj::Personaj(const Personaj& other)
 }
 
 Personaj& Personaj::operator=(const Personaj& other) {
-    Personaj temp(other); 
-    
-    using std::swap; 
+    Personaj temp(other);
+
+    using std::swap;
 
     swap(this->numeComplet, temp.numeComplet);
     swap(this->nationalitate, temp.nationalitate);
@@ -56,6 +66,10 @@ Personaj& Personaj::operator=(const Personaj& other) {
     swap(this->cariera, temp.cariera);
     swap(this->relatii, temp.relatii);
     swap(this->ultimaAventura, temp.ultimaAventura);
+    swap(this->aniSentintaRamasi, temp.aniSentintaRamasi);
+    swap(this->cazierNivel, temp.cazierNivel);
+    swap(this->bonusAventuraTemporar, temp.bonusAventuraTemporar);
+    swap(this->numeSotSauSotie, temp.numeSotSauSotie);
 
     return *this;
 }
@@ -74,6 +88,22 @@ void Personaj::adaugaRelatieIntern(const Relatie& r) {
     }
     else {
         std::cout << "Limita de relatii atinsa." << std::endl;
+    }
+}
+
+const Statistici &Personaj::getStatistici() const {
+    return stats;
+}
+
+void Personaj::modificaStatistica(const std::string& nume, const double valoare) {
+    if (nume == "Bani") {
+        stats.modificaBani(valoare);
+    }
+    else if (nume == "Fericire" || nume == "Sanatate" || nume == "Inteligenta" || nume == "Aspect" || nume == "Vizibilitate") {
+        stats.modificaStatistica(nume, static_cast<int>(std::round(valoare)));
+    }
+    else {
+        std::cerr << "[EROARE LOGICA] Statistica necunoscuta: " << nume << std::endl;
     }
 }
 
@@ -194,7 +224,7 @@ void Personaj::marcheazaDeces(const std::string& cauza) {
 
 bool Personaj::verificaDeces() {
     if (esteMort) return true;
-    
+
     if (stats.getSanatate().getValoare() < PRAG_SANATATE_CRITICA) {
         marcheazaDeces("Sanatate extrem de scazuta");
         return true;
@@ -343,9 +373,9 @@ void Personaj::gestioneazaExpeditiePericuloasa() {
     const bool pregatit = stats.areStatisticiSanatoase();
 
     ultimaAventura = AventuraFactory::creeazaAventuraAleatoare();
-    
+
     std::cout << ">> Tip Aventura: ";
-    ultimaAventura->afiseazaDetalii(std::cout); 
+    ultimaAventura->afiseazaDetalii(std::cout);
     std::cout << std::endl;
 
     const int riscAventura = ultimaAventura->getSansaEsecBaza();
@@ -356,7 +386,7 @@ void Personaj::gestioneazaExpeditiePericuloasa() {
         ultimaAventura->aplicaImpact(stats);
 
     this->reseteazaBonusAventura();
-        
+
         if (dynamic_cast<Salvare*>(ultimaAventura.get())) {
             Salvare::oferaMotivatieExtra(stats);
             std::cout << "\n[LOG: Downcast] Primit motivatie extra (Fericire +5) de la Salvare.";
@@ -408,6 +438,84 @@ void Personaj::evenimentViataMajor() {
     }
 }
 
+void Personaj::aplicaSentinta(const Sentinta& s) {
+    if (stats.getBani() >= s.getAmendaValoare()) {
+        modificaStatistica("Bani", -s.getAmendaValoare());
+        std::cout << "  [AMENDA] " << s.getAmendaValoare() << " K au fost platiti.\n";
+    } else {
+        const int aniSuplimentari = static_cast<int>(std::round(s.getAmendaValoare() / 100000.0));
+        aniSentintaRamasi = s.getDurataInchisoare() + aniSuplimentari;
+        std::cout << "  [FALIMENT] Nu ai avut bani pentru amenda. Sentinta extinsa cu " << aniSuplimentari << " ani.\n";
+    }
+
+    if (aniSentintaRamasi == 0) {
+        aniSentintaRamasi = s.getDurataInchisoare();
+    }
+
+    cazierNivel += s.getImpactCazierFinal();
+    if (cazierNivel > 100) cazierNivel = 100;
+    std::cout << "  [CAZIER] Nivel cazier actualizat la " << cazierNivel << ".\n";
+
+    modificaStatistica("Fericire", -30);
+    modificaStatistica("Sanatate", -10);
+
+    std::cout << "\n>>> VERDICT FINAL: ";
+    if (aniSentintaRamasi > 0) {
+        std::cout << "CONDAMNARE! SENTINTA DE " << aniSentintaRamasi << " ANI INCHISOARE." << std::endl;
+    } else {
+        std::cout << "Achitare (doar amenda/fara inchisoare)." << std::endl;
+    }
+    std::cout << "------------------------------------------\n";
+    // ----------------------------------------------------
+}
+
+
+void Personaj::treceAnul() {
+    if (aniSentintaRamasi > 0) {
+        ruleazaAnInInchisoare();
+    } else {
+        varsta++;
+        std::cout << "\n[SIMULARE] Personajul a Implinit " << varsta << " ani. An obisnuit.\n";
+    }
+}
+bool Personaj::esteInInchisoare() const {
+    return aniSentintaRamasi > 0;
+}
+
+void Personaj::ruleazaAnInInchisoare() {
+    aniSentintaRamasi--;
+    varsta++;
+
+    std::cout << "\n==================================================\n";
+    std::cout << "    Anul " << varsta << " - INCHISOARE. Ani ramasi: " << aniSentintaRamasi << "\n";
+    std::cout << "==================================================\n";
+
+    modificaStatistica("Fericire", -15.0);
+    modificaStatistica("Sanatate", -10.0);
+
+    if (aniSentintaRamasi == 0) {
+        std::cout << "[ELIBERARE] Felicitari! Ai fost eliberat. Cauta un nou job.\n";
+        modificaStatistica("Fericire", 30.0);
+        modificaStatistica("Sanatate", 10.0);
+    }
+}
+
+void Personaj::executaActiuneCrima(const int crimaID) {
+    if (esteInInchisoare()) {
+        std::cout << "[INFO] Nu se poate comite crima in inchisoare. Actiune ignorata.\n";
+        return;
+    }
+
+    // Verifică și aruncă excepție dacă ID-ul este invalid
+    if (const Crima* crima = Crima::getCrimaPeDecizie(crimaID)) {
+        std::cout << "Executa Crima: " << crima->getNume() << "..." << std::endl;
+        crima->executa(*this);
+    } else {
+        throw EroareDecizieInvalida(crimaID);
+    }
+}
+
+
 void Personaj::afiseazaMeniuDecizie() {
     std::cout << "\n--- OPTIUNI ANUALE PRINCIPALE ---" << std::endl;
     std::cout << "0. Continua la Anul Urmator (Fara Decizie majora)" << std::endl;
@@ -423,8 +531,11 @@ void Personaj::afiseazaMeniuDecizie() {
     std::cout << "9. Cumpara Carti (0.5K) ++++ INTELIGENTA ++++" << std::endl;
     std::cout << "10. Cumpara Masina (50K) ++++ FERICIRE ++++" << std::endl;
     std::cout << "11. Cumpara Medicamente (0.1K) ++++ SANATATE ++++" << std::endl;
+    std::cout << "\n--- OPTIUNI ILEGALE (CRIME) ---" << std::endl;
+    std::cout << "12. Comite CRIMA SIMPLA (Ex: Furt, Vandalism)" << std::endl;
+    std::cout << "13. Comite CRIMA GRAVA (Ex: Jaf, Vanzare Ilegala)" << std::endl;
     std::cout << "\n--- FINALIZARE JOC ---" << std::endl;
-    std::cout << "12. RENUNTA / SURRENDER" << std::endl;
+    std::cout << "14. RENUNTA / SURRENDER" << std::endl;
 }
 
 
@@ -448,7 +559,7 @@ void Personaj::iaDecizieDestin(const int alegere) {
         }
         case 2: {
             std::cout << "Actiune: Initierea unei expeditii periculoase..." << std::endl;
-            gestioneazaExpeditiePericuloasa(); 
+            gestioneazaExpeditiePericuloasa();
             break;
         }
         case 3: {
@@ -498,11 +609,23 @@ void Personaj::iaDecizieDestin(const int alegere) {
         }
         case 11: {
             std::cout << "Actiune: Cumpararea unor medicamente..." << std::endl;
-            const CumparaCasa casa;
-            cumparaProdus(casa);
+            const CumparaMedicamente medicamente;
+            cumparaProdus(medicamente);
             break;
         }
         case 12: {
+            std::cout << "Actiune: Comitere CRIMA SIMPLA. Se alege tipul..." << std::endl;
+            const int crimaID = GeneratorRandom::getInstance().getRandomInt(20, 22);
+            executaActiuneCrima(crimaID);
+            break;
+        }
+        case 13: {
+            std::cout << "Actiune: Comitere CRIMA GRAVA. Se alege tipul..." << std::endl;
+            const int crimaID = GeneratorRandom::getInstance().getRandomInt(23, 25);
+            executaActiuneCrima(crimaID);
+            break;
+        }
+        case 14: {
             std::cout << "Actiune: Jucatorul a renuntat la viata!" << std::endl;
             marcheazaDeces("Renuntare (Surrender)");
             break;
@@ -512,7 +635,7 @@ void Personaj::iaDecizieDestin(const int alegere) {
             break;
         }
         default: {
-            std::cout << "Alegere invalida. Nicio actiune." << std::endl;
+            throw EroareDecizieInvalida(alegere);
         }
     }
 
@@ -526,6 +649,11 @@ void Personaj::iaDecizieDestin(const int alegere) {
     if (esteMort) return true;
 
     for (int i = 0; i < ani; ++i) {
+        if (esteInInchisoare()) {
+            ruleazaAnInInchisoare();
+            continue;
+        }
+
         if (varsta >= varstaDecesAleatorie || varsta >= VARSTA_MAXIMA_FORTATA) {
             marcheazaDeces("Batranete");
             return true;

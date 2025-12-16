@@ -11,21 +11,25 @@
 #include "ReteaSociala.h"
 #include "Shopping.h"
 
+class Sentinta;
+
 class Personaj {
     std::string numeComplet;
     std::string nationalitate;
     DataNastere dataNastere;
-    std::string numeSotSauSotie;
     int varsta;
     int varstaDecesAleatorie;
     bool esteMort;
-    int bonusAventuraTemporar = 0;
     Statistici stats;
     Cariera cariera;
     std::vector<Relatie> relatii;
     std::unique_ptr<Aventura> ultimaAventura{};
     std::vector<EvenimentViata> istoricEvenimente;
     ReteaSociala retea;
+    int aniSentintaRamasi;
+    int cazierNivel;
+    int bonusAventuraTemporar=0;
+    std::string numeSotSauSotie;
 
     static constexpr int MAX_RELATII = 5;
     static int nrPersonajeActive;
@@ -42,6 +46,7 @@ class Personaj {
     void evenimentViataMajor();
     void initializeazaRelatiiParente();
     void cumparaProdus(const Shopping& produs);
+    void executaActiuneCrima(int crimaID);
 
 public:
     static void afiseazaMeniuDecizie();
@@ -63,10 +68,17 @@ public:
     void planificaVacanta();
     void afiseazaVerdictFinal() const;
     void actiuneSocialMedia();
+    void aplicaSentinta(const Sentinta& s);
+    void ruleazaAnInInchisoare();
+    void treceAnul();
+    void modificaStatistica(const std::string& nume, double valoare);
 
     [[nodiscard]] int getVarsta() const;
     [[nodiscard]] bool aplicaAnual(int ani = 1);
     [[nodiscard]] bool getEsteMort() const;
+    [[nodiscard]] bool esteInInchisoare() const;
+    [[nodiscard]] const Statistici &getStatistici() const;
+
 
     friend std::ostream& operator<<(std::ostream& os, const Personaj& p);
 };

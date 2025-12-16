@@ -69,6 +69,16 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         Vacanta.cpp
         ReteaSociala.h
         ReteaSociala.cpp
+        Crima.h
+        CrimaSimpla.h
+        CrimaSimpla.cpp
+        Sentinta.h
+        Sentinta.cpp
+        CrimaViolenta.h
+        CrimaViolenta.cpp
+        SistemLegal.h
+        SistemLegal.cpp
+        Crima.cpp
 )
 
 # NOTE: Add all defined targets (e.g. executables, libraries, etc. )

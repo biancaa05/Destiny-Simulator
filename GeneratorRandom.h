@@ -23,6 +23,15 @@ public:
         std::uniform_int_distribution<> distrib(min, max);
         return distrib(generator);
     }
+
+    double getDouble(const double min, const double max) {
+        std::uniform_real_distribution<> distrib(min, max);
+        return distrib(generator);
+    }
+
+    bool getChance(const double procent) {
+        return getDouble(0.0, 1.0) < procent;
+    }
 };
 
 #endif // GENERATORRANDOM_H

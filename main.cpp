@@ -115,6 +115,15 @@ int main() {
         for (int i1 = 0; i1 < ani_simulare; ++i1) {
             if (jucatorPtr->getEsteMort()) break;
 
+            if (jucatorPtr->esteInInchisoare()) {
+                std::cout << "\n--- ANUL " << jucatorPtr->getVarsta() << " (INCHISOARE) ---" << std::endl;
+                std::cout << "[SIMULARE] Decizia din fisier (" << decizii_anuale[i1] << ") este IGNORATA.\n";
+
+                if (jucatorPtr->aplicaAnual(1)) break;
+
+                continue;
+            }
+
             std::cout << "\n--- STARE CURENTA INAINTE DE DECIZIA ANULUI " << jucatorPtr->getVarsta() << " ---" << std::endl;
             std::cout << *jucatorPtr << std::endl;
 

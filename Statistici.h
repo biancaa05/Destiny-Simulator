@@ -21,8 +21,6 @@ public:
     Statistici(Statistici&& other) = default;
     Statistici& operator=(Statistici&& other) = default;
 
-    void modificaStatistica(const std::string& tip, int valoare);
-
     [[nodiscard]] const StatisticaLimita<int> &getInteligenta() const;
     [[nodiscard]] const StatisticaLimita<int> &getFericire() const;
     [[nodiscard]] const StatisticaLimita<int> &getAspect() const;
@@ -35,6 +33,8 @@ public:
 
     void modificaBani(double suma);
     [[nodiscard]] double getBani() const;
+
+    void modificaStatistica(const std::string& tip, int valoare);
 };
 
 #endif // STATISTICI_H
