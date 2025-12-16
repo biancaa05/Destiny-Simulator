@@ -67,6 +67,8 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         Shopping.cpp
         Vacanta.h
         Vacanta.cpp
+        ReteaSociala.h
+        ReteaSociala.cpp
 )
 
 # NOTE: Add all defined targets (e.g. executables, libraries, etc. )

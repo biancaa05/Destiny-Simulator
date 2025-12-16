@@ -10,12 +10,12 @@ private:
     StatisticaLimita<int> fericire;
     StatisticaLimita<int> inteligenta;
     StatisticaLimita<int> aspect;
+    StatisticaLimita<int> vizibilitate;
     StatisticaLimita<double> bani;
 
 public:
     Statistici();
-    Statistici(int s, int f, int i, int a);
-
+    Statistici(int s, int f, int i, int a, int v, double b);
     Statistici(const Statistici& other) = default;
     Statistici& operator=(const Statistici& other) = default;
     Statistici(Statistici&& other) = default;
@@ -27,6 +27,7 @@ public:
     [[nodiscard]] const StatisticaLimita<int> &getFericire() const;
     [[nodiscard]] const StatisticaLimita<int> &getAspect() const;
     [[nodiscard]] const StatisticaLimita<int> &getSanatate() const;
+    [[nodiscard]] const StatisticaLimita<int>& getVizibilitate() const { return vizibilitate; }
 
     [[nodiscard]] bool areStatisticiSanatoase() const;
     [[nodiscard]] double getMedieFericireIstoric() const;

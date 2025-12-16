@@ -10,8 +10,12 @@ constexpr int VAL_MIN_STAT = 0;
 constexpr int VAL_MAX_STAT = 100;
 constexpr int VITEZA_DEGRADARE_FERICIRE = 1;
 constexpr int PRAG_SANATATE_CRITICA = 5;
-constexpr int MAX_OPTIUNI_DECIZIE = 10;
+constexpr int MAX_OPTIUNI_DECIZIE = 12;
 constexpr int VARSTA_MAXIMA_FORTATA = 100;
+constexpr int STAT_VIZIBILITATE_INIT = 10;
+constexpr int STAT_VIZIBILITATE_MAX = 100;
+constexpr int BANI_MAX_INIT= 999999999;
+constexpr int VALOARE_BANI_INITIALA=0;
 
 const std::vector<std::string> NUME_FEMEI = {
     "Maria", "Elena", "Andreea", "Alexandra", "Ioana", "Diana", "Carmen", "Adina",

@@ -4,21 +4,24 @@
 #include <iostream>
 #include <iomanip>
 #include <string>
+#include "sim_common.h"
 
 Statistici::Statistici() :
     sanatate(GeneratorRandom::getInstance().getRandomInt(30, 90), 100),
     fericire(GeneratorRandom::getInstance().getRandomInt(30, 90), 100),
     inteligenta(GeneratorRandom::getInstance().getRandomInt(30, 90), 100),
     aspect(GeneratorRandom::getInstance().getRandomInt(30, 90), 100),
-    bani(0.0, 0.0)
+    vizibilitate(STAT_VIZIBILITATE_INIT, STAT_VIZIBILITATE_MAX),
+    bani(0.0, BANI_MAX_INIT)
 {}
 
-Statistici::Statistici(const int s, const int f, const int i, const int a) :
+Statistici::Statistici(const int s, const int f, const int i, const int a, const int v, const double b) :
     sanatate(s, 100),
     fericire(f, 100),
     inteligenta(i, 100),
     aspect(a, 100),
-    bani(0.0, 0.0)
+    vizibilitate(v, STAT_VIZIBILITATE_MAX),
+    bani(b, BANI_MAX_INIT)
 {}
 
 void Statistici::modificaBani(const double suma) {
@@ -46,6 +49,9 @@ void Statistici::modificaStatistica(const std::string& tip, const int valoare) {
     else if (tip == "Aspect") {
         aspect.modifica(valoare);
     }
+    else if (tip == "Vizibilitate") {
+        vizibilitate.modifica(valoare);
+    }
     else {
         std::cerr << "[EROARE LOGICA] Statistica necunoscuta: " << tip << std::endl;
     }
@@ -72,6 +78,7 @@ std::ostream& operator<<(std::ostream& os, const Statistici& s) {
        << ", Fericire: " << s.fericire.getValoare()
        << ", Inteligenta: " << s.inteligenta.getValoare()
        << ", Aspect: " << s.aspect.getValoare()
+       << ", Vizibilitate: " << s.vizibilitate.getValoare()
        << ", BANI: " << std::fixed << std::setprecision(2) << s.bani.getValoare() << "K";
     return os;
 }

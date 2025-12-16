@@ -98,7 +98,9 @@ int main() {
             GeneratorRandom::getInstance().getRandomInt(MIN_HIGH_STAT, MAX_HIGH_STAT),
             GeneratorRandom::getInstance().getRandomInt(MIN_HIGH_STAT, MAX_HIGH_STAT),
             GeneratorRandom::getInstance().getRandomInt(MIN_HIGH_STAT, MAX_HIGH_STAT),
-            GeneratorRandom::getInstance().getRandomInt(MIN_HIGH_STAT, MAX_HIGH_STAT)
+            GeneratorRandom::getInstance().getRandomInt(MIN_HIGH_STAT, MAX_HIGH_STAT),
+            STAT_VIZIBILITATE_INIT,
+            VALOARE_BANI_INITIALA
         );
 
         jucatorPtr = new Personaj(numeComplet, nationalitate, 1, dn, stats_initiale);

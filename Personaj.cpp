@@ -113,6 +113,13 @@ void Personaj::cumparaProdus(const Shopping& produs) {
     std::cout << "[SHOP] Ai cumparat " << produs.getNumeProdus() << ". Cost: -" << cost << "K." << std::endl;
 }
 
+void Personaj::actiuneSocialMedia() {
+    if (esteMort) return;
+    retea.posteazaCeva(stats, relatii);
+
+    adaugaEveniment(varsta, "Postare Social Media", "Vizibilitate/Fericire/Relatii modificate.");
+}
+
 void Personaj::initializeazaRelatiiParente() {
     const std::string numeMama = alegeNumeRandom(false);
     const std::string numeTata = alegeNumeRandom(true);
@@ -408,15 +415,16 @@ void Personaj::afiseazaMeniuDecizie() {
     std::cout << "2. Expeditie Periculoasa (Eveniment Major cu Scenarii)" << std::endl;
     std::cout << "3. Creeaza o noua relatie (Prieten/Coleg/Inamic)" << std::endl;
     std::cout << "4. PREPARARE: Antrenament pentru reducerea riscului (Cost Fericire)" << std::endl;
-    std::cout << "5. PLANIFICA VACANTA (Destinatie si Parteneri aleatorii)" << std::endl;
+    std::cout << "5. Planifica Vacanta (Destinatie si Parteneri aleatorii)" << std::endl;
+    std::cout << "6: Actiune Retele Sociale" << std::endl;
     std::cout << "\n--- OPTIUNI SHOPPING ---" << std::endl;
-    std::cout << "6. Cumpara Casa (250K) ++++ FERICIRE ++++" << std::endl;
-    std::cout << "7. Sesiune Spa (5K) ++++ FERICIRE & ASPECT ++++" << std::endl;
-    std::cout << "8. Cumpara Carti (0.5K) ++++ INTELIGENTA ++++" << std::endl;
-    std::cout << "9. Cumpara Masina (50K) ++++ FERICIRE ++++" << std::endl;
-    std::cout << "10. Sesiune Medicamente (0.1K) ++++ SANATATE ++++" << std::endl;
+    std::cout << "7. Cumpara Casa (250K) ++++ FERICIRE ++++" << std::endl;
+    std::cout << "8. Sesiune Spa (5K) ++++ FERICIRE & ASPECT ++++" << std::endl;
+    std::cout << "9. Cumpara Carti (0.5K) ++++ INTELIGENTA ++++" << std::endl;
+    std::cout << "10. Cumpara Masina (50K) ++++ FERICIRE ++++" << std::endl;
+    std::cout << "11. Cumpara Medicamente (0.1K) ++++ SANATATE ++++" << std::endl;
     std::cout << "\n--- FINALIZARE JOC ---" << std::endl;
-    std::cout << "11. RENUNTA / SURRENDER" << std::endl;
+    std::cout << "12. RENUNTA / SURRENDER" << std::endl;
 }
 
 
@@ -460,36 +468,41 @@ void Personaj::iaDecizieDestin(const int alegere) {
             break;
         }
         case 6: {
+            std::cout << "Initiere Postare Social Media." << std::endl;
+            actiuneSocialMedia();
+            break;
+        }
+        case 7: {
             std::cout << "Actiune: Cumpararea unei case..." << std::endl;
             const CumparaCasa casa;
             cumparaProdus(casa);
             break;
         }
-        case 7: {
+        case 8: {
             std::cout << "Actiune: Cumpararea unei sesiuni la spa..." << std::endl;
             const SesiuneSpa spa;
             cumparaProdus(spa);
             break;
         }
-        case 8: {
+        case 9: {
             std::cout << "Actiune: Cumpararea unor carti..." << std::endl;
             const CumparaCarti carti;
             cumparaProdus(carti);
             break;
         }
-        case 9: {
+        case 10: {
             std::cout << "Actiune: Cumpararea unei masini..." << std::endl;
             const CumparaMasina masina;
             cumparaProdus(masina);
             break;
         }
-        case 10: {
+        case 11: {
             std::cout << "Actiune: Cumpararea unor medicamente..." << std::endl;
             const CumparaCasa casa;
             cumparaProdus(casa);
             break;
         }
-        case 11: {
+        case 12: {
             std::cout << "Actiune: Jucatorul a renuntat la viata!" << std::endl;
             marcheazaDeces("Renuntare (Surrender)");
             break;

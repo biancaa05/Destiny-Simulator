@@ -8,6 +8,7 @@
 #include "Relatie.h"
 #include "Aventura.h"
 #include "EvenimentViata.h"
+#include "ReteaSociala.h"
 #include "Shopping.h"
 
 class Personaj {
@@ -24,6 +25,7 @@ class Personaj {
     std::vector<Relatie> relatii;
     std::unique_ptr<Aventura> ultimaAventura{};
     std::vector<EvenimentViata> istoricEvenimente;
+    ReteaSociala retea;
 
     static constexpr int MAX_RELATII = 5;
     static int nrPersonajeActive;
@@ -60,6 +62,7 @@ public:
     void sePreparaPentruAventura();
     void planificaVacanta();
     void afiseazaVerdictFinal() const;
+    void actiuneSocialMedia();
 
     [[nodiscard]] int getVarsta() const;
     [[nodiscard]] bool aplicaAnual(int ani = 1);
