@@ -11,6 +11,7 @@
 #include "EvenimentViata.h"
 #include "ReteaSociala.h"
 #include "Shopping.h"
+#include "Observer.h"
 
 class Sentinta;
 
@@ -35,6 +36,7 @@ class Personaj {
     int cazierNivel;
     int bonusAventuraTemporar=0;
     std::string numeSotSauSotie;
+    std::vector<Observer*> observatori;
 
     static constexpr int MAX_RELATII = 5;
     static int nrPersonajeActive;
@@ -78,6 +80,13 @@ public:
     void aplicaSentinta(const Sentinta& s);
     void ruleazaAnInInchisoare();
     void modificaStatistica(const std::string& nume, double valoare);
+    void adaugaObservator(Observer* obs) { observatori.push_back(obs); }
+
+    void notifica(const std::string& eveniment) const {
+        for (const auto obs : observatori) {
+            obs->onNotify(eveniment);
+        }
+    }
 
     [[nodiscard]] int getVarsta() const;
     [[nodiscard]] bool aplicaAnual(int ani = 1);

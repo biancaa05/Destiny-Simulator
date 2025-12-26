@@ -210,6 +210,7 @@ void Personaj::pensioneaza() {
     std::cout << "=================================================" << std::endl;
 
     adaugaEveniment(varsta, "Pensionare (Final Cariera)", "Venit redus, Fericire +15.");
+    notifica("PENSIONARE");
 }
 
 void Personaj::actiuneSocialMedia() {
@@ -506,7 +507,7 @@ void Personaj::evenimentViataMajor() {
                                     + std::to_string(static_cast<int>(COST_NUNTA)) + "K";
 
             adaugaEveniment(varsta, descriereNunta, impactNunta);
-
+            notifica("CASATORIE");
             std::cout << "\n[EVENIMENT MAJOR] NUNTA la " << varsta << " de ani cu " << numeSotSauSotie << "!" << std::endl;
 
             return;
@@ -726,6 +727,7 @@ void Personaj::iaDecizieDestin(const int alegere) {
         if (varsta >= 18 && varsta <= 40 && !numeSotSauSotie.empty()) {
             if (GeneratorRandom::getInstance().getRandomInt(1, 100) <= 5) {
                 numarCopii++;
+                if (numarCopii == 1) notifica("PRIMUL_COPIL");
                 std::cout << "\n+++ EVENIMENT MAJOR! +++" << std::endl;
                 std::cout << "Ai un copil! Acum ai " << numarCopii << " copii." << std::endl;
                 std::cout << "+++ COST INITIAL: Bani -5K, Fericire -5. +++\n";
@@ -778,6 +780,9 @@ void Personaj::iaDecizieDestin(const int alegere) {
                     adaugaEveniment(varsta, "Boala Contractata", "A inceput tratamentul pentru " + boliPosibile[idxBoala].getNume());
                 }
             }
+        }
+        if (this->stats.getBani() >= 1000000.0) {
+            notifica("MILIARDAR");
         }
 
         if (varsta >= varstaDecesAleatorie || varsta >= VARSTA_MAXIMA_FORTATA) {

@@ -4,6 +4,7 @@
 #include "Statistici.h"
 #include "Exceptii.h"
 #include "GeneratorRandom.h"
+#include "SistemRealizari.h"
 
 bool citesteDateIntrare(std::string& nume, std::string& prenume, std::string& nationalitate, int& aniSimulare, std::vector<int>& decizii_anuale) {
     std::ifstream fisierTastatura("tastatura.txt");
@@ -78,6 +79,7 @@ std::ostream& operator<<(std::ostream& os, const DataNastere& dn) {
 }
 
 int main() {
+
     std::cout << "--- DESTINY SIMULATOR ---" << std::endl;
 
     Personaj* jucatorPtr = nullptr;
@@ -109,7 +111,8 @@ int main() {
         jucator_copie = *jucatorPtr;
 
         std::cout << "[TEST LOG] Copia varstei (pentru a suprima warning-ul): " << jucator_copie.getVarsta() << std::endl;
-
+        SistemRealizari achievementSystem;
+        jucatorPtr->adaugaObservator(&achievementSystem);
         std::cout << "\n--- START VIATA ---" << std::endl;
 
         for (int i1 = 0; i1 < ani_simulare; ++i1) {
@@ -144,6 +147,7 @@ int main() {
 
         jucatorPtr->afiseazaIstoricViata();
         jucatorPtr->afiseazaVerdictFinal();
+        achievementSystem.afiseazaRealizariFinale();
 
         if (!jucatorPtr->getEsteMort()) {
             std::cout << *jucatorPtr << std::endl;
