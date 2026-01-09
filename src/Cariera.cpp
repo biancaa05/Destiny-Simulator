@@ -1,5 +1,5 @@
-#include "Cariera.h"
-#include "GeneratorRandom.h"
+#include "../headers/Cariera.h"
+#include "../headers/GeneratorRandom.h"
 #include <iostream>
 
 void Cariera::ajusteazaSatisfactia(const int val) {

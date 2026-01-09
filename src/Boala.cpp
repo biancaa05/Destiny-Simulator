@@ -1,6 +1,6 @@
-#include "Boala.h"
-#include "Personaj.h"
-#include "GeneratorRandom.h"
+#include "../headers/Boala.h"
+#include "../headers/Personaj.h"
+#include "../headers/GeneratorRandom.h"
 #include <iostream>
 #include <utility>
 

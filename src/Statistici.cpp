@@ -1,10 +1,10 @@
-#include "Statistici.h"
-#include "GeneratorRandom.h"
-#include "StatisticaLimita.h"
+#include "../headers/Statistici.h"
+#include "../headers/GeneratorRandom.h"
+#include "../headers/StatisticaLimita.h"
 #include <iostream>
 #include <iomanip>
 #include <string>
-#include "sim_common.h"
+#include "../headers/sim_common.h"
 
 Statistici::Statistici() :
     sanatate(GeneratorRandom::getInstance().getRandomInt(30, 90), 100),

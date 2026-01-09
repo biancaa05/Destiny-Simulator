@@ -1,6 +1,6 @@
-#include "ReteaSociala.h"
-#include "GeneratorRandom.h"
-#include "Statistici.h"
+#include "../headers/ReteaSociala.h"
+#include "../headers/GeneratorRandom.h"
+#include "../headers/Statistici.h"
 #include <iostream>
 
 std::ostream& operator<<(std::ostream& os, const ReteaSociala& r) {

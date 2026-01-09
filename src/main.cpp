@@ -1,10 +1,10 @@
 #include <fstream>
 #include <random>
-#include "Personaj.h"
-#include "Statistici.h"
-#include "Exceptii.h"
-#include "GeneratorRandom.h"
-#include "SistemRealizari.h"
+#include "../headers/Personaj.h"
+#include "../headers/Statistici.h"
+#include "../headers/Exceptii.h"
+#include "../headers/GeneratorRandom.h"
+#include "../headers/SistemRealizari.h"
 
 bool citesteDateIntrare(std::string& nume, std::string& prenume, std::string& nationalitate, int& aniSimulare, std::vector<int>& decizii_anuale) {
     std::ifstream fisierTastatura("tastatura.txt");

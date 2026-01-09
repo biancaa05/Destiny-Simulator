@@ -49,40 +49,40 @@ include(cmake/CopyHelper.cmake)
 
 # NOTE: update executable name in .github/workflows/cmake.yml:25 when changing name here
 add_executable(${MAIN_EXECUTABLE_NAME}
-        main.cpp
-        Statistica.cpp
-        Statistici.cpp
-        Cariera.cpp
-        Relatie.cpp
-        EvenimentViata.cpp
-        Personaj.cpp
-        Exceptii.h
-        Aventura.h
-        Aventura.cpp
-        GeneratorRandom.h
-        SimUtilities.h
-        AventuraFactory.h
-        StatisticaLimita.h
-        Shopping.h
-        Shopping.cpp
-        Vacanta.h
-        Vacanta.cpp
-        ReteaSociala.h
-        ReteaSociala.cpp
-        Crima.h
-        CrimaSimpla.h
-        CrimaSimpla.cpp
-        Sentinta.h
-        Sentinta.cpp
-        CrimaViolenta.h
-        CrimaViolenta.cpp
-        SistemLegal.h
-        SistemLegal.cpp
-        Crima.cpp
-        Boala.h
-        Boala.cpp
-        Observer.h
-        SistemRealizari.h
+        src/main.cpp
+        src/Statistica.cpp
+        src/Statistici.cpp
+        src/Cariera.cpp
+        src/Relatie.cpp
+        src/EvenimentViata.cpp
+        src/Personaj.cpp
+        headers/Exceptii.h
+        headers/Aventura.h
+        src/Aventura.cpp
+        headers/GeneratorRandom.h
+        headers/SimUtilities.h
+        headers/AventuraFactory.h
+        headers/StatisticaLimita.h
+        headers/Shopping.h
+        src/Shopping.cpp
+        headers/Vacanta.h
+        src/Vacanta.cpp
+        headers/ReteaSociala.h
+        src/ReteaSociala.cpp
+        headers/Crima.h
+        headers/CrimaSimpla.h
+        src/CrimaSimpla.cpp
+        headers/Sentinta.h
+        src/Sentinta.cpp
+        headers/CrimaViolenta.h
+        src/CrimaViolenta.cpp
+        headers/SistemLegal.h
+        src/SistemLegal.cpp
+        src/Crima.cpp
+        headers/Boala.h
+        src/Boala.cpp
+        headers/Observer.h
+        headers/SistemRealizari.h
 )
 
 # NOTE: Add all defined targets (e.g. executables, libraries, etc. )

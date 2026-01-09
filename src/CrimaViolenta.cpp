@@ -1,6 +1,6 @@
-#include "CrimaViolenta.h"
-#include "GeneratorRandom.h"
-#include "SistemLegal.h"
+#include "../headers/CrimaViolenta.h"
+#include "../headers/GeneratorRandom.h"
+#include "../headers/SistemLegal.h"
 
 CrimaViolenta::CrimaViolenta(const std::string& nume, const double risc, const double minBani, const double maxBani, const int cazier, const double impactSanatate)
     : Crima(nume, risc, minBani, maxBani, cazier), impactSanatateNegativ(impactSanatate) {}

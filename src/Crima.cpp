@@ -1,6 +1,6 @@
-#include "Crima.h"
-#include "CrimaSimpla.h"
-#include "CrimaViolenta.h"
+#include "../headers/Crima.h"
+#include "../headers/CrimaSimpla.h"
+#include "../headers/CrimaViolenta.h"
 #include <iostream>
 
 static const CrimaSimpla FURT_BUZUNARE("Furt din Buzunare", 0.20, 1000.0, 5000.0, 5);

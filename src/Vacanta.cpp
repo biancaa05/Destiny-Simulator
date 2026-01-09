@@ -1,6 +1,6 @@
-#include "Vacanta.h"
-#include "GeneratorRandom.h"
-#include "SimUtilities.h"
+#include "../headers/Vacanta.h"
+#include "../headers/GeneratorRandom.h"
+#include "../headers/SimUtilities.h"
 #include <iostream>
 
 void Vacanta::selecteazaDestinatieAleatorie() {

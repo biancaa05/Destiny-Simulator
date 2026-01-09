@@ -1,4 +1,4 @@
-#include "Sentinta.h"
+#include "../headers/Sentinta.h"
 #include <iostream>
 #include <iomanip>
 

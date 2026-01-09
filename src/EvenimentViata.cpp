@@ -1,4 +1,4 @@
-#include "EvenimentViata.h"
+#include "../headers/EvenimentViata.h"
 #include <iomanip>
 
 std::ostream& operator<<(std::ostream& os, const EvenimentViata& ev) {

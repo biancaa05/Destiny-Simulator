@@ -1,4 +1,4 @@
-#include "Statistica.h"
+#include "../headers/Statistica.h"
 
 Statistica::Statistica() {
     this->nume = "Necunoscuta";

@@ -1,6 +1,6 @@
-#include "CrimaSimpla.h"
-#include "GeneratorRandom.h"
-#include "SistemLegal.h"
+#include "../headers/CrimaSimpla.h"
+#include "../headers/GeneratorRandom.h"
+#include "../headers/SistemLegal.h"
 
 CrimaSimpla::CrimaSimpla(const std::string& nume, const double risc, const double minBani, const double maxBani, const int cazier)
     : Crima(nume, risc, minBani, maxBani, cazier) {}

@@ -1,4 +1,4 @@
-#include "Relatie.h"
+#include "../headers/Relatie.h"
 
 Relatie::Relatie(const std::string& nume, const std::string& tip, const int afectiune, const int varsta) {
     this->numePersoana = nume;

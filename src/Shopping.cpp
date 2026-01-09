@@ -1,4 +1,4 @@
-#include "Shopping.h"
+#include "../headers/Shopping.h"
 
 void CumparaCasa::aplicaImpact(Statistici& stats) const {
     stats.modificaStatistica("Fericire", 30);

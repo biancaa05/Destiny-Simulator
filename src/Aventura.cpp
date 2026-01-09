@@ -1,6 +1,6 @@
-#include "Aventura.h"
-#include "Statistici.h"
-#include "GeneratorRandom.h"
+#include "../headers/Aventura.h"
+#include "../headers/Statistici.h"
+#include "../headers/GeneratorRandom.h"
 #include <iostream>
 
 void DrumetieMontana::aplicaImpact(Statistici& stats) {

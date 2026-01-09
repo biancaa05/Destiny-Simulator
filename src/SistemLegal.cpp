@@ -1,9 +1,9 @@
-#include "SistemLegal.h"
-#include "GeneratorRandom.h"
+#include "../headers/SistemLegal.h"
+#include "../headers/GeneratorRandom.h"
 #include <cmath>
 #include <iostream>
-#include "Sentinta.h"
-#include "Personaj.h"
+#include "../headers/Sentinta.h"
+#include "../headers/Personaj.h"
 
 bool SistemLegal::verificaPrindere(const Personaj& p, const Crima& c) {
     double sansaDePrindere = c.getRisc();

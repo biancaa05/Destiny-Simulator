@@ -1,11 +1,11 @@
-#include "Personaj.h"
-#include "SimUtilities.h"
-#include "AventuraFactory.h"
-#include "Sentinta.h"
-#include "Vacanta.h"
-#include "Statistici.h"
-#include "Exceptii.h"
-#include "Crima.h"
+#include "../headers/Personaj.h"
+#include "../headers/SimUtilities.h"
+#include "../headers/AventuraFactory.h"
+#include "../headers/Sentinta.h"
+#include "../headers/Vacanta.h"
+#include "../headers/Statistici.h"
+#include "../headers/Exceptii.h"
+#include "../headers/Crima.h"
 #include <memory>
 #include <cmath>
 
