@@ -10,7 +10,7 @@ The game puts you in control of a character's life choices. From early childhood
 
 * **Attribute System:** Tracks core stats: **Happiness, Health, Intelligence, and Looks**.
 * **Dynamic Life Stages:** Progress through infancy, childhood, adolescence, adulthood, and old age.
-* **Random Events:** Encounter unpredictable scenarios every year that require critical decision-making.
+* **Random Events:** Encounter unpredictable scenarios that require critical decision-making.
 * **Career & Education:** Choose your study path to unlock specific high-paying jobs.
 * **Financial Management:** Balance your income and expenses to maintain a stable lifestyle.
 
